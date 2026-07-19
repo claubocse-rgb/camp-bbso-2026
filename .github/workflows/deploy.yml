@@ -1,0 +1,47 @@
+name: Deploy pe GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      # Chei publice (safe in browser). Cheia VAPID privata NU e aici — e secret in edge function.
+      VITE_SUPABASE_URL: https://bzyqtnlbomqtcacteobf.supabase.co
+      VITE_SUPABASE_ANON_KEY: sb_publishable_5dGe-i-9kRBfByj7nccD9g_nLYV0g8O
+      VITE_VAPID_PUBLIC_KEY: BFtS5BH0qHRvrjjkd_KLOYTkS4f2Sw07oYiMmBJltgu4Bn6p1Hg6ayB97QFMAY_LfaSNoDJ6kueuxQb5dVf4jpk
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      # SPA fallback + dezactivare Jekyll pentru GitHub Pages
+      - run: cp dist/index.html dist/404.html && touch dist/.nojekyll
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

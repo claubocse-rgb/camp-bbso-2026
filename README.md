@@ -37,13 +37,12 @@ Accesul e controlat prin RLS; rolurile sunt `admin` / `organizer` / `pending`.
 Un admin adaugă emailul în `allowed_organizers`; la primul login Google, profilul
 primește automat rolul potrivit. Fără email pe listă → cont `pending` (blocat).
 
-## Pași manuali rămași (o singură dată)
-1. **Google OAuth** în Supabase → Authentication → Providers → Google (client ID/secret din Google Cloud Console).
-2. **Netlify:** conectează repo-ul, setează variabilele `VITE_SUPABASE_URL` și `VITE_SUPABASE_ANON_KEY`.
-3. În Supabase → Authentication → URL Configuration: adaugă domeniul Netlify la Redirect URLs.
+## Pași manuali pentru „live"
+Vezi **[SETUP.md](SETUP.md)** — publicare pe GitHub Pages, login Google, notificări push, remindere.
 
 ## Roadmap (pe etape)
 1. ✅ Fundație: conturi, echipe, schelet PWA, navigare
-2. Conținut: Orar, Echipe, Studiu (PDF), Jocuri, integrare hartă camere
-3. Interactiv: To-do (asumare task), Chat realtime
-4. Notificări: push, remindere înainte de activități, alerte
+2. ✅ Conținut: Orar, Echipe, Studiu (PDF), Jocuri, hartă camere
+3. ✅ Interactiv: To-do (asumare task), Chat realtime
+4. ✅ Notificări: push pe device, remindere înainte de activități, alerte, notificări in-app
+5. ⏳ Deploy: GitHub Pages (workflow gata) + pașii din SETUP.md
