@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthProvider'
 import { useOrganizers, organizerName } from '../lib/hooks'
+import { sendPush } from '../lib/push'
 import Modal from '../components/Modal'
 
 type Alert = { id: string; sender_id: string | null; title: string; body: string | null; audience: string; created_at: string }
@@ -88,6 +89,9 @@ function AlertForm({
       p_recipient_ids: audience === 'nominal' ? selected : null,
     })
     if (error) { setError('Eroare: ' + error.message); setBusy(false); return }
+    // push pe telefon (best-effort)
+    if (audience === 'nominal') await sendPush({ profile_ids: selected, title: title.trim(), body: body || undefined, link: '/alerte' })
+    else await sendPush({ all: true, title: title.trim(), body: body || undefined, link: '/alerte' })
     onDone()
   }
 

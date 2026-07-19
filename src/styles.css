@@ -272,6 +272,14 @@ h2 { font-size: 1rem; margin: 0; }
 .bell-body { font-size: .82rem; color: var(--muted); margin-top: 2px; }
 .bell-time { font-size: .68rem; color: var(--muted); margin-top: 4px; }
 
+.push-toggle { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--line); font-size: .82rem; font-weight: 600; }
+.push-msg { padding: 8px 14px; font-size: .76rem; color: var(--danger); border-bottom: 1px solid var(--line); }
+.switch { position: relative; width: 40px; height: 22px; border-radius: 999px; border: none; background: #cdd6d1; cursor: pointer; transition: .18s; flex-shrink: 0; }
+.switch.on { background: var(--green-600); }
+.switch .knob { position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: .18s; }
+.switch.on .knob { transform: translateX(18px); }
+.switch:disabled { opacity: .6; }
+
 .badge-audience { font-size: .68rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
 .badge-audience.all { background: #eaf4ef; color: var(--green-700); }
 .badge-audience.nominal { background: #fdeee0; color: #b06a1c; }

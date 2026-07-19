@@ -2,6 +2,7 @@ import { useEffect, useState, useRef, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthProvider'
 import { useOrganizers } from '../lib/hooks'
+import { sendPush } from '../lib/push'
 import type { Message, ProfileLite } from '../lib/types'
 
 export default function Chat() {
@@ -34,6 +35,11 @@ export default function Chat() {
     if (!body || !profile) return
     setText('')
     await supabase.from('messages').insert({ channel: 'general', sender_id: profile.id, body })
+    await sendPush({
+      all: true, exclude: [profile.id],
+      title: `💬 ${profile.full_name || 'Mesaj nou'}`,
+      body, link: '/chat',
+    })
   }
 
   function sender(id: string): ProfileLite | undefined { return organizers.find((o) => o.id === id) }

@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthProvider'
+import { isPushSupported, currentSubscription, enablePush, disablePush } from '../lib/push'
 import Icon from './Icon'
 
 type Notif = { id: string; type: string; title: string; body: string | null; read: boolean; created_at: string }
@@ -9,7 +10,23 @@ export default function NotificationsBell() {
   const { profile } = useAuth()
   const [items, setItems] = useState<Notif[]>([])
   const [open, setOpen] = useState(false)
+  const [pushOn, setPushOn] = useState(false)
+  const [pushBusy, setPushBusy] = useState(false)
+  const [pushMsg, setPushMsg] = useState('')
   const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => { currentSubscription().then((s) => setPushOn(!!s)) }, [])
+
+  async function togglePush() {
+    if (!profile) return
+    setPushBusy(true); setPushMsg('')
+    if (pushOn) { await disablePush(); setPushOn(false) }
+    else {
+      const r = await enablePush(profile.id)
+      if (r.ok) setPushOn(true); else setPushMsg(r.error || 'Nu s-a putut activa.')
+    }
+    setPushBusy(false)
+  }
 
   const load = useCallback(async () => {
     if (!profile) return
@@ -51,6 +68,15 @@ export default function NotificationsBell() {
       {open && (
         <div className="bell-panel">
           <div className="bell-head">Notificări</div>
+          {isPushSupported() && (
+            <div className="push-toggle">
+              <span>Notificări pe acest dispozitiv</span>
+              <button className={'switch' + (pushOn ? ' on' : '')} onClick={togglePush} disabled={pushBusy} aria-label="Comută notificările">
+                <span className="knob" />
+              </button>
+            </div>
+          )}
+          {pushMsg && <div className="push-msg">{pushMsg}</div>}
           {items.length === 0 ? (
             <div className="bell-empty">Nicio notificare.</div>
           ) : items.map((n) => (
