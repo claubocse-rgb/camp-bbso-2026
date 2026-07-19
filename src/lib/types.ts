@@ -7,8 +7,20 @@ export type Participant = {
   gender: 'M' | 'F' | null
   study_team_id: string | null
   game_team_id: string | null
+  room_id: string | null
   notes: string | null
   created_at: string
+}
+
+export type Room = {
+  id: string
+  building: string
+  name: string
+  level: string | null
+  capacity: number
+  beds: string | null
+  bathroom: string | null
+  sort_order: number
 }
 
 export type Activity = {
