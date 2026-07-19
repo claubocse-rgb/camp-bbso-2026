@@ -1,6 +1,7 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '../context/AuthProvider'
 import Icon from './Icon'
+import NotificationsBell from './NotificationsBell'
 
 const NAV = [
   { to: '/', label: 'Dashboard', icon: 'dashboard' as const, end: true },
@@ -59,6 +60,12 @@ export default function Layout() {
       </aside>
 
       <main className="content">
+        <div className="topbar">
+          <div className="topbar-brand">
+            <span className="brand-mark">BBSO</span><span className="brand-year">2026</span>
+          </div>
+          <NotificationsBell />
+        </div>
         <Outlet />
       </main>
     </div>

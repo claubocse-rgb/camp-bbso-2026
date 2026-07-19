@@ -256,3 +256,31 @@ h2 { font-size: 1rem; margin: 0; }
   .task-actions { flex-direction: row; align-items: center; }
 }
 
+/* ---------- topbar + bell ---------- */
+.topbar { display: flex; align-items: center; justify-content: space-between; margin: -6px 0 18px; }
+.topbar-brand { display: none; }
+.bell-wrap { position: relative; margin-left: auto; }
+.bell-btn { position: relative; background: #fff; border: 1px solid var(--line); border-radius: 10px; width: 40px; height: 40px; display: grid; place-items: center; cursor: pointer; color: var(--green-700); box-shadow: var(--shadow); }
+.bell-btn:hover { border-color: var(--green-500); }
+.bell-badge { position: absolute; top: -5px; right: -5px; background: var(--danger); color: #fff; font-size: .62rem; font-weight: 800; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 999px; display: grid; place-items: center; }
+.bell-panel { position: absolute; right: 0; top: 48px; width: 300px; max-height: 400px; overflow-y: auto; background: #fff; border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 12px 40px rgba(16,36,28,.18); z-index: 60; }
+.bell-head { font-weight: 700; padding: 12px 14px; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: #fff; }
+.bell-empty { padding: 24px; text-align: center; color: var(--muted); font-size: .88rem; }
+.bell-item { padding: 10px 14px; border-bottom: 1px solid var(--line); }
+.bell-item.unread { background: #f0f8f4; }
+.bell-title { font-weight: 600; font-size: .9rem; }
+.bell-body { font-size: .82rem; color: var(--muted); margin-top: 2px; }
+.bell-time { font-size: .68rem; color: var(--muted); margin-top: 4px; }
+
+.badge-audience { font-size: .68rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
+.badge-audience.all { background: #eaf4ef; color: var(--green-700); }
+.badge-audience.nominal { background: #fdeee0; color: #b06a1c; }
+.alert-card { border-left: 4px solid var(--green-500); }
+.picker { display: flex; flex-direction: column; gap: 4px; max-height: 200px; overflow-y: auto; border: 1px solid var(--line); border-radius: 9px; padding: 8px; }
+.picker-item { flex-direction: row !important; align-items: center; gap: 8px; font-weight: 400 !important; font-size: .9rem !important; }
+.picker-item input { width: auto; }
+
+@media (max-width: 760px) {
+  .topbar-brand { display: inline-flex; align-items: baseline; gap: 5px; }
+}
+
