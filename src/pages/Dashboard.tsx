@@ -2,14 +2,18 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthProvider'
 import { supabase } from '../lib/supabase'
+import type { Activity } from '../lib/types'
 import Icon from '../components/Icon'
 
 export default function Dashboard() {
   const { profile } = useAuth()
   const [studyTeam, setStudyTeam] = useState<string | null>(null)
   const [gameTeam, setGameTeam] = useState<string | null>(null)
+  const [todayActs, setTodayActs] = useState<Activity[]>([])
 
-  const today = new Date().toLocaleDateString('ro-RO', {
+  const now = new Date()
+  const iso = now.toISOString().slice(0, 10)
+  const today = now.toLocaleDateString('ro-RO', {
     weekday: 'long', day: 'numeric', month: 'long',
   })
 
@@ -25,9 +29,13 @@ export default function Dashboard() {
           .from('game_teams').select('name').eq('id', profile.game_team_id).maybeSingle()
         setGameTeam((data as { name: string } | null)?.name ?? null)
       }
+      const { data: acts } = await supabase
+        .from('activities').select('*').eq('day', iso)
+        .order('start_time', { nullsFirst: true })
+      setTodayActs((acts as Activity[]) ?? [])
     }
     load()
-  }, [profile?.study_team_id, profile?.game_team_id])
+  }, [profile?.study_team_id, profile?.game_team_id, iso])
 
   const firstName = (profile?.full_name || '').split(' ')[0] || 'organizator'
 
@@ -45,9 +53,19 @@ export default function Dashboard() {
             <h2>Programul zilei</h2>
             <Link to="/orar" className="card-link">Vezi orarul</Link>
           </div>
-          <p className="muted">
-            Aici va apărea programul de azi, tras din Orarul taberei. Îl construim la pasul următor.
-          </p>
+          {todayActs.length === 0 ? (
+            <p className="muted">Nimic programat pentru azi (sau orarul nu e completat încă).</p>
+          ) : (
+            <ul className="today-list">
+              {todayActs.map((a) => (
+                <li key={a.id}>
+                  <span className="today-time">{a.start_time ? a.start_time.slice(0, 5) : '—'}</span>
+                  <span className="today-title">{a.title}</span>
+                  {a.location && <span className="muted small">📍 {a.location}</span>}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         <Link to="/echipe-studiu" className="card shortcut">

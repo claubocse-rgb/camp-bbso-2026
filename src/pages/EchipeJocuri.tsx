@@ -1,9 +1,13 @@
-import PageStub from '../components/PageStub'
+import TeamsManager from '../components/TeamsManager'
 
 export default function EchipeJocuri() {
   return (
-    <PageStub title="Echipe jocuri" subtitle="Grupele pentru jocuri și competiții.">
-      Lista echipelor de jocuri, cu participanții și responsabilul fiecărei echipe.
-    </PageStub>
+    <div className="page">
+      <header className="page-head">
+        <h1>Echipe jocuri</h1>
+        <p className="muted">Grupele pentru jocuri și competiții. Echipa ta e evidențiată.</p>
+      </header>
+      <TeamsManager kind="game" />
+    </div>
   )
 }

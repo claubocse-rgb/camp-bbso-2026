@@ -1,10 +1,13 @@
-import PageStub from '../components/PageStub'
+import TeamsManager from '../components/TeamsManager'
 
 export default function EchipeStudiu() {
   return (
-    <PageStub title="Echipe studiu" subtitle="Grupele de studiu și membrii lor.">
-      Lista echipelor de studiu, cu participanții din fiecare și responsabilul.
-      Echipa de care răspunzi tu va fi evidențiată și linkată din Dashboard.
-    </PageStub>
+    <div className="page">
+      <header className="page-head">
+        <h1>Echipe studiu</h1>
+        <p className="muted">Grupele de studiu și membrii lor. Echipa ta e evidențiată.</p>
+      </header>
+      <TeamsManager kind="study" />
+    </div>
   )
 }
