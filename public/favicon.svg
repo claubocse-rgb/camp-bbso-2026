@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="14" fill="#1f6f54"/>
+  <path d="M32 12l16 9v22H16V21z" fill="#34a07d"/>
+  <path d="M32 12l16 9H16z" fill="#dbeee6"/>
+  <text x="32" y="52" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#ffffff" text-anchor="middle">BBSO</text>
+</svg>
