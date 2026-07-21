@@ -219,7 +219,7 @@ export default function Participanti() {
 
       {addModal && <Modal title="Participant nou" onClose={() => setAddModal(false)}><AddForm onSave={addOne} /></Modal>}
       {importModal && <Modal title="Import listă participanți" onClose={() => setImportModal(false)}><ImportForm onSave={importMany} /></Modal>}
-      {detail && <DetailModal p={detail} teams={teams} rooms={rooms} onClose={() => setDetail(null)} />}
+      {detail && <DetailModal p={detail} teams={teams} rooms={rooms} onClose={() => setDetail(null)} onSaved={load} />}
     </div>
   )
 }
@@ -229,17 +229,40 @@ function Row({ label, value }: { label: string; value: any }) {
   return <div className="d-row"><span className="d-label">{label}</span><span className="d-val">{value}</span></div>
 }
 
-function DetailModal({ p, teams, rooms, onClose }: {
-  p: Participant; teams: Record<string, string>; rooms: Record<string, string>; onClose: () => void
+function DetailModal({ p, teams, rooms, onClose, onSaved }: {
+  p: Participant; teams: Record<string, string>; rooms: Record<string, string>; onClose: () => void; onSaved: () => void
 }) {
+  const [email, setEmail] = useState(p.email ?? '')
+  const [phone, setPhone] = useState(p.phone ?? '')
+  const [busy, setBusy] = useState(false)
+  const [msg, setMsg] = useState('')
+  const dirty = email.trim() !== (p.email ?? '') || phone.trim() !== (p.phone ?? '')
+  async function saveContact() {
+    setBusy(true); setMsg('')
+    const { error } = await supabase.from('participants').update({
+      email: email.trim() || null, phone: phone.trim() || null,
+    }).eq('id', p.id)
+    setBusy(false)
+    if (error) { setMsg('Eroare: ' + error.message); return }
+    setMsg('✓ Salvat'); onSaved(); setTimeout(() => setMsg(''), 2000)
+  }
   return (
     <Modal title={p.full_name} onClose={onClose}>
       <div className="detail">
         <Row label="Clasă" value={p.status === 'rezerva' ? 'Rezervă' : 'Confirmat'} />
         <Row label="Vârstă" value={p.age} />
         <Row label="Data nașterii" value={p.birth_date} />
-        <Row label="Telefon" value={p.phone} />
-        <Row label="Email" value={p.email} />
+        <div className="d-edit">
+          <div className="detail-sep" style={{ marginTop: 4 }}>Contact {email.trim() ? '' : '⚠️ fără email'}</div>
+          <label className="sign-name">Email
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="nume@exemplu.com" />
+          </label>
+          <label className="sign-name">Telefon
+            <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="07…" inputMode="tel" />
+          </label>
+          <button className="btn-primary" onClick={saveContact} disabled={!dirty || busy}>{busy ? 'Se salvează…' : 'Salvează contactul'}</button>
+          {msg && <p className={'small ' + (msg.startsWith('✓') ? 'saved-note' : 'error-text')}>{msg}</p>}
+        </div>
         <Row label="Localitate" value={p.city} />
         <Row label="Mărime tricou" value={p.tshirt_size} />
         <Row label="Botezat" value={p.baptized} />

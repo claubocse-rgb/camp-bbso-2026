@@ -527,3 +527,6 @@ h2 { font-size: 1rem; margin: 0; }
 .resend-details { margin-top: 10px; }
 .resend-details summary { cursor: pointer; color: var(--green-700); font-weight: 600; font-size: .85rem; }
 .detail-sep { margin: 14px 0 6px; font-weight: 700; color: var(--green-700); border-top: 1px solid var(--line); padding-top: 10px; }
+.d-edit { margin: 6px 0 10px; }
+.no-email-badge { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; margin-left: 8px; border-radius: 50%; background: #d9822b; color: #fff; font-weight: 800; font-size: .72rem; line-height: 1; }
+.no-email-row { background: #fff8f0; }

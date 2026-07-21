@@ -163,7 +163,7 @@ export default function Invitatii() {
 
           <section style={{ marginTop: 22 }}>
             <div className="page-head with-action">
-              <h2 style={{ fontSize: '1.05rem' }}>Linkuri personale ({list.length}) · {list.filter((p) => p.consent_accepted).length} au semnat</h2>
+              <h2 style={{ fontSize: '1.05rem' }}>Linkuri personale ({list.length}) · {list.filter((p) => p.consent_accepted).length} au semnat{list.filter((p) => !p.email).length > 0 ? ` · ${list.filter((p) => !p.email).length} fără email` : ''}</h2>
               <div className="head-actions">
                 <label className="check-row" style={{ fontSize: '.85rem' }}>
                   <input type="checkbox" checked={onlyConfirmed} onChange={(e) => setOnlyConfirmed(e.target.checked)} /> doar confirmați
@@ -177,8 +177,8 @@ export default function Invitatii() {
                 <thead><tr><th>Nume</th><th>Semnat</th><th>Email</th><th>Link personal</th><th></th></tr></thead>
                 <tbody>
                   {list.map((p) => (
-                    <tr key={p.id}>
-                      <td>{p.full_name}</td>
+                    <tr key={p.id} className={p.email ? '' : 'no-email-row'}>
+                      <td>{p.full_name}{!p.email && <span className="no-email-badge" title="Nu avem adresă de email">!</span>}</td>
                       <td className="cazat-cell">{p.consent_accepted ? <span className="cazat-check" title="A semnat">✓</span> : <span className="cazat-no">·</span>}</td>
                       <td className="muted small">{p.email || '—'}</td>
                       <td className="muted small link-cell">{portalLink(p.access_token)}</td>
