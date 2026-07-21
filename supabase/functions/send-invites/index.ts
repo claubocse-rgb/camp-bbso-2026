@@ -19,7 +19,6 @@ function emailHtml(firstName: string, message: string, link: string) {
   return `<div style="font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;max-width:520px;margin:0 auto;color:#10241c">
     <div style="background:#0f3d2e;color:#fff;padding:18px 22px;border-radius:14px 14px 0 0"><b style="letter-spacing:1px">BBSO 2026</b></div>
     <div style="border:1px solid #e4ebe6;border-top:none;border-radius:0 0 14px 14px;padding:22px">
-      <p>Salut, ${esc(firstName)}!</p>
       <p style="line-height:1.5">${body}</p>
       <p style="text-align:center;margin:26px 0">
         <a href="${link}" style="background:#2a8869;color:#fff;text-decoration:none;padding:12px 22px;border-radius:10px;font-weight:600;display:inline-block">Deschide pagina ta</a>
