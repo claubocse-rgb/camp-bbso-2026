@@ -18,6 +18,7 @@ export default function Participanti() {
   const [shirt, setShirt] = useState('toti')
   const [tip, setTip] = useState('toti')
   const [housing, setHousing] = useState('toti')
+  const [member, setMember] = useState('toti')
   const [addModal, setAddModal] = useState(false)
   const [importModal, setImportModal] = useState(false)
   const [detail, setDetail] = useState<Participant | null>(null)
@@ -93,6 +94,7 @@ export default function Participanti() {
     .filter((p) => filter === 'toti' || p.status === filter)
     .filter((p) => tip === 'toti' || (tip === 'rezerva' ? p.status === 'rezerva' : p.kind === tip))
     .filter((p) => housing === 'toti' || (housing === 'cazat' ? !!p.room_id : !p.room_id))
+    .filter((p) => member === 'toti' || (member === 'membru' ? !!p.is_member : !p.is_member))
     .filter((p) => gender === 'toti' || (gender === 'none' ? !p.gender : p.gender === gender))
     .filter((p) => ageNum === null || p.age === ageNum)
     .filter((p) => shirt === 'toti' || (shirt === 'none' ? !p.tshirt_size : p.tshirt_size === shirt))
@@ -154,6 +156,13 @@ export default function Participanti() {
                 <option value="necazat">Necazați</option>
               </select>
             </label>
+            <label>Membru
+              <select value={member} onChange={(e) => setMember(e.target.value)}>
+                <option value="toti">Toți</option>
+                <option value="membru">Membri (1500)</option>
+                <option value="nonmembru">Non-membri (1900)</option>
+              </select>
+            </label>
             <label>Mărime tricou
               <select value={shirt} onChange={(e) => setShirt(e.target.value)}>
                 <option value="toti">Toate</option>
@@ -161,8 +170,8 @@ export default function Participanti() {
                 <option value="none">Fără mărime</option>
               </select>
             </label>
-            {(tip !== 'toti' || gender !== 'toti' || age || shirt !== 'toti' || housing !== 'toti') && (
-              <button className="link-btn" onClick={() => { setTip('toti'); setGender('toti'); setAge(''); setShirt('toti'); setHousing('toti') }}>Resetează filtre</button>
+            {(tip !== 'toti' || gender !== 'toti' || age || shirt !== 'toti' || housing !== 'toti' || member !== 'toti') && (
+              <button className="link-btn" onClick={() => { setTip('toti'); setGender('toti'); setAge(''); setShirt('toti'); setHousing('toti'); setMember('toti') }}>Resetează filtre</button>
             )}
           </div>
           <div className="table-wrap">

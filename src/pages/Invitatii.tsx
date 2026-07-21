@@ -36,6 +36,7 @@ Până atunci, mai sunt câteva lucruri de rezolvat:
   const [sending, setSending] = useState(false)
   const [sendResult, setSendResult] = useState('')
   const [testEmail, setTestEmail] = useState('')
+  const [sampleId, setSampleId] = useState('')
   const [rowBusy, setRowBusy] = useState<string | null>(null)
   const [rowMsg, setRowMsg] = useState<Record<string, string>>({})
   const fileRef = useRef<HTMLInputElement>(null)
@@ -91,10 +92,11 @@ Până atunci, mai sunt câteva lucruri de rezolvat:
     if (!dest.includes('@')) { setSendResult('Scrie o adresă de email pentru test.'); return }
     setSending(true); setSendResult('')
     const { data, error } = await supabase.functions.invoke('send-invites', {
-      body: { subject, message, link_base: linkBase(), only_confirmed: onlyConfirmed, test_email: dest },
+      body: { subject, message, link_base: linkBase(), only_confirmed: onlyConfirmed, test_email: dest, sample_id: sampleId || undefined },
     })
     setSending(false)
-    setSendResult(error ? 'Eroare: ' + error.message : `Test trimis la ${dest}. Verifică inbox/spam.`)
+    const who = (data as any)?.sample
+    setSendResult(error ? 'Eroare: ' + error.message : `Test trimis la ${dest}${who ? ` (cu datele lui ${who})` : ''}. Verifică inbox/spam.`)
   }
   async function sendToOne(p: P) {
     if (!p.email) { setRowMsg((m) => ({ ...m, [p.id]: 'fără email' })); return }
@@ -165,6 +167,14 @@ Până atunci, mai sunt câteva lucruri de rezolvat:
               <label>Mesaj<textarea rows={5} value={message} onChange={(e) => setMessage(e.target.value)} /></label>
               <label>Email pentru test (poți testa la orice adresă)
                 <input type="email" value={testEmail} onChange={(e) => setTestEmail(e.target.value)} placeholder={profile?.email || 'nume@exemplu.com'} />
+              </label>
+              <label>Trimite testul cu datele lui (pentru sume și link)
+                <select value={sampleId} onChange={(e) => setSampleId(e.target.value)}>
+                  <option value="">— prima persoană din listă —</option>
+                  {[...people].sort((a, b) => a.full_name.localeCompare(b.full_name)).map((p) => (
+                    <option key={p.id} value={p.id}>{p.full_name}</option>
+                  ))}
+                </select>
               </label>
               <div className="email-actions">
                 <button className="btn-secondary" onClick={sendTest} disabled={sending}>{sending ? 'Se trimite…' : 'Trimite test'}</button>

@@ -6,7 +6,7 @@ const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const BREVO_API_KEY = Deno.env.get('BREVO_API_KEY') ?? ''
 const BREVO_FROM_EMAIL = Deno.env.get('BREVO_FROM_EMAIL') ?? ''
-const BREVO_FROM_NAME = Deno.env.get('BREVO_FROM_NAME') ?? 'Camp BBSO 2026'
+const BREVO_FROM_NAME = 'Tabara BBSO 2026'
 
 const admin = createClient(SUPABASE_URL, SERVICE_KEY)
 const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type', 'Access-Control-Allow-Methods': 'POST, OPTIONS' }
@@ -19,11 +19,11 @@ function emailHtml(firstName: string, message: string, link: string) {
   return `<div style="font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;max-width:520px;margin:0 auto;color:#10241c">
     <div style="background:#0f3d2e;color:#fff;padding:18px 22px;border-radius:14px 14px 0 0"><b style="letter-spacing:1px">BBSO 2026</b></div>
     <div style="border:1px solid #e4ebe6;border-top:none;border-radius:0 0 14px 14px;padding:22px">
-      <p style="line-height:1.5">${body}</p>
-      <p style="text-align:center;margin:26px 0">
-        <a href="${link}" style="background:#2a8869;color:#fff;text-decoration:none;padding:12px 22px;border-radius:10px;font-weight:600;display:inline-block">Deschide pagina ta</a>
+      <p style="text-align:center;margin:4px 0 8px">
+        <a href="${link}" style="background:#2a8869;color:#fff;text-decoration:none;padding:12px 24px;border-radius:10px;font-weight:600;display:inline-block">Deschide pagina ta</a>
       </p>
-      <p style="font-size:12px;color:#6b7c74">Sau copiază linkul: <br>${link}</p>
+      <p style="font-size:12px;color:#6b7c74;text-align:center;margin:0 0 20px">sau copiază linkul: ${link}</p>
+      <p style="line-height:1.5">${body}</p>
     </div>
   </div>`
 }
@@ -69,7 +69,7 @@ Deno.serve(async (req) => {
     if (!BREVO_API_KEY) return json({ error: 'Lipseste BREVO_API_KEY in secretele edge function.' }, 400)
     if (!BREVO_FROM_EMAIL) return json({ error: 'Lipseste BREVO_FROM_EMAIL (expeditor validat in Brevo).' }, 400)
 
-    const { subject, message, link_base, only_confirmed = true, test_email, single_id } = await req.json()
+    const { subject, message, link_base, only_confirmed = true, test_email, single_id, sample_id } = await req.json()
     if (!subject || !message || !link_base) return json({ error: 'subject, message, link_base necesare' }, 400)
 
     // trimitere catre o singura persoana (buton pe rand)
@@ -90,10 +90,14 @@ Deno.serve(async (req) => {
     const valid = (parts ?? []).filter((p: any) => typeof p.email === 'string' && p.email.includes('@'))
 
     if (test_email) {
-      const sample = valid[0]
+      let sample = valid[0]
+      if (sample_id) {
+        const { data: s } = await admin.from('participants').select('full_name, first_name, email, access_token, is_member, paid_amount').eq('id', sample_id).maybeSingle()
+        if (s) sample = s
+      }
       const token = sample?.access_token ?? '00000000-0000-0000-0000-000000000000'
       await sendOne(test_email, '(test)', `[TEST] ${personalize(subject, sample)}`, emailHtml('(test)', personalize(message, sample), link_base + token))
-      return json({ test: true, sent_to: test_email })
+      return json({ test: true, sent_to: test_email, sample: sample?.full_name ?? null })
     }
 
     let sent = 0; const errors: string[] = []

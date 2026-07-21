@@ -9,7 +9,7 @@ const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const BREVO_API_KEY = Deno.env.get('BREVO_API_KEY') ?? ''
 const BREVO_FROM_EMAIL = Deno.env.get('BREVO_FROM_EMAIL') ?? ''
-const BREVO_FROM_NAME = Deno.env.get('BREVO_FROM_NAME') ?? 'Camp BBSO 2026'
+const BREVO_FROM_NAME = 'Tabara BBSO 2026'
 
 const admin = createClient(SUPABASE_URL, SERVICE_KEY)
 const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type', 'Access-Control-Allow-Methods': 'POST, OPTIONS' }
