@@ -37,10 +37,15 @@ export default function Todo() {
     if (assignedTo && created?.id) await assignTask(created.id, assignedTo, title.trim())
     setModal(false)
   }
-  async function assignTask(taskId: string, assignee: string | null, taskTitle: string) {
-    await supabase.rpc('assign_task', { p_task_id: taskId, p_assignee: assignee })
-    if (assignee && assignee !== profile?.id) {
-      await sendPush({ profile_ids: [assignee], title: 'Ți s-a atribuit un task', body: taskTitle, link: '/todo' })
+  async function assignTask(taskId: string, value: string, taskTitle: string) {
+    if (value === '__all__') {
+      await supabase.rpc('assign_task_all', { p_task_id: taskId })
+      await sendPush({ all: true, exclude: profile?.id ? [profile.id] : [], title: '📌 Task nou pentru toți', body: taskTitle, link: '/todo' })
+    } else {
+      await supabase.rpc('assign_task', { p_task_id: taskId, p_assignee: value || null })
+      if (value && value !== profile?.id) {
+        await sendPush({ profile_ids: [value], title: 'Ți s-a atribuit un task', body: taskTitle, link: '/todo' })
+      }
     }
     load()
   }
@@ -113,7 +118,7 @@ function TaskRow({
   t, me, organizers, onAssign, onClaim, onDone, onDelete,
 }: {
   t: Task; me?: string; organizers: ReturnType<typeof useOrganizers>
-  onAssign: (assignee: string | null) => void
+  onAssign: (value: string) => void
   onClaim: () => void; onDone: () => void; onDelete: () => void
 }) {
   const mine = t.claimed_by === me
@@ -128,13 +133,15 @@ function TaskRow({
         {t.description && <div className="muted small">{t.description}</div>}
         <div className="act-meta">
           {t.due_at && <span>⏰ {new Date(t.due_at).toLocaleString('ro-RO', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>}
-          {t.assigned_to && <span className={assignedMe ? 'claimed-me' : ''}>📌 Atribuit: {assignedMe ? 'Ție' : organizerName(organizers, t.assigned_to)}</span>}
+          {t.assigned_all && <span className="claimed-me">📌 Atribuit: Toți</span>}
+          {!t.assigned_all && t.assigned_to && <span className={assignedMe ? 'claimed-me' : ''}>📌 Atribuit: {assignedMe ? 'Ție' : organizerName(organizers, t.assigned_to)}</span>}
           {t.claimed_by && <span className={mine ? 'claimed-me' : ''}>👤 {mine ? 'Tu' : organizerName(organizers, t.claimed_by)}</span>}
         </div>
         <div className="act-meta">
           <label className="assign-inline">Atribuie:
-            <select value={t.assigned_to ?? ''} onChange={(e) => onAssign(e.target.value || null)}>
+            <select value={t.assigned_all ? '__all__' : (t.assigned_to ?? '')} onChange={(e) => onAssign(e.target.value)}>
               <option value="">— nimeni —</option>
+              <option value="__all__">Toți (anunț general)</option>
               {organizers.map((o) => <option key={o.id} value={o.id}>{o.full_name || o.email}</option>)}
             </select>
           </label>
@@ -169,6 +176,7 @@ function TaskForm({ organizers, onSave }: {
       <label>Atribuie către (opțional) — primește notificare
         <select value={assignedTo} onChange={(e) => setAssignedTo(e.target.value)}>
           <option value="">— nimeni —</option>
+          <option value="__all__">Toți (anunț general)</option>
           {organizers.map((o) => <option key={o.id} value={o.id}>{o.full_name || o.email}</option>)}
         </select>
       </label>
