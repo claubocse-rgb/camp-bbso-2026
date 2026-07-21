@@ -205,6 +205,7 @@ export default function Participanti() {
                       </select>
                     </td>
                     <td className="nowrap">
+                      {!p.email && <span className="no-email-badge sm" title="Fără adresă de email">!</span>}
                       <button className="link-btn" onClick={() => setDetail(p)}>Detalii</button>
                       <button className="link-btn danger" onClick={() => remove(p.id)}>✕</button>
                     </td>
