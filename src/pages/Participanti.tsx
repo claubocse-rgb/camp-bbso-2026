@@ -234,13 +234,19 @@ function DetailModal({ p, teams, rooms, onClose, onSaved }: {
 }) {
   const [email, setEmail] = useState(p.email ?? '')
   const [phone, setPhone] = useState(p.phone ?? '')
+  const [isMember, setIsMember] = useState(!!p.is_member)
+  const [paid, setPaid] = useState(String(p.paid_amount ?? 0))
   const [busy, setBusy] = useState(false)
   const [msg, setMsg] = useState('')
+  const total = isMember ? 1500 : 1900
+  const rest = Math.max(total - (Number(paid) || 0), 0)
   const dirty = email.trim() !== (p.email ?? '') || phone.trim() !== (p.phone ?? '')
+    || isMember !== !!p.is_member || (Number(paid) || 0) !== (p.paid_amount ?? 0)
   async function saveContact() {
     setBusy(true); setMsg('')
     const { error } = await supabase.from('participants').update({
       email: email.trim() || null, phone: phone.trim() || null,
+      is_member: isMember, paid_amount: Number(paid) || 0,
     }).eq('id', p.id)
     setBusy(false)
     if (error) { setMsg('Eroare: ' + error.message); return }
@@ -260,7 +266,13 @@ function DetailModal({ p, teams, rooms, onClose, onSaved }: {
           <label className="sign-name">Telefon
             <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="07…" inputMode="tel" />
           </label>
-          <button className="btn-primary" onClick={saveContact} disabled={!dirty || busy}>{busy ? 'Se salvează…' : 'Salvează contactul'}</button>
+          <div className="detail-sep" style={{ marginTop: 4 }}>Plată</div>
+          <label className="check-row"><input type="checkbox" checked={isMember} onChange={(e) => setIsMember(e.target.checked)} /> Membru BBSO (tarif 1500 lei){!isMember && ' — acum: non-membru 1900 lei'}</label>
+          <label className="sign-name">Avans achitat (lei)
+            <input type="number" value={paid} onChange={(e) => setPaid(e.target.value)} placeholder="0" inputMode="numeric" />
+          </label>
+          <p className="small" style={{ margin: '2px 0 6px' }}>Tarif total: <b>{total} lei</b> · Rest de plată: <b>{rest} lei</b></p>
+          <button className="btn-primary" onClick={saveContact} disabled={!dirty || busy}>{busy ? 'Se salvează…' : 'Salvează'}</button>
           {msg && <p className={'small ' + (msg.startsWith('✓') ? 'saved-note' : 'error-text')}>{msg}</p>}
         </div>
         <Row label="Localitate" value={p.city} />

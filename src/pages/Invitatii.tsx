@@ -31,7 +31,7 @@ Până atunci, mai sunt câteva lucruri de rezolvat:
 💳 Plata se poate face:
 - online, pe site-ul Bisericii. La secțiunea „Despre donație" este important să completezi „Plată Tabără". Dacă alegi această variantă, te rugăm să atașezi dovada plății la regulamentul semnat, iar apoi să ni le aduci împreună.
 - la Campus, duminică, între cele două programe, lângă Info Point.
-💰 Tu mai ai de achitat: __ lei.
+💰 Tu mai ai de achitat: {{rest}} lei.
 Îți mulțumim și ne vedem în curând! 😊`)
   const [sending, setSending] = useState(false)
   const [sendResult, setSendResult] = useState('')
@@ -159,6 +159,7 @@ Până atunci, mai sunt câteva lucruri de rezolvat:
           <section className="card" style={{ marginTop: 22 }}>
             <h2>✉️ Trimite pe email</h2>
             <p className="muted small">Fiecare primește linkul lui personal + mesajul de mai jos. Testează întâi la tine, apoi trimite la toți.</p>
+            <p className="muted small">Poți folosi în mesaj: <b>{'{{rest}}'}</b> = restul de plată, <b>{'{{total}}'}</b> = tariful (1500 membri / 1900 non-membri), <b>{'{{avans}}'}</b> = avansul achitat. Se completează automat pentru fiecare persoană (setezi „membru" și „avans" în Participanți).</p>
             <div className="form" style={{ marginTop: 10 }}>
               <label>Subiect<input value={subject} onChange={(e) => setSubject(e.target.value)} /></label>
               <label>Mesaj<textarea rows={5} value={message} onChange={(e) => setMessage(e.target.value)} /></label>

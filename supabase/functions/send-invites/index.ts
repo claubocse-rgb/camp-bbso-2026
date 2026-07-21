@@ -28,6 +28,23 @@ function emailHtml(firstName: string, message: string, link: string) {
   </div>`
 }
 
+const PRICE_MEMBER = 1500
+const PRICE_NONMEMBER = 1900
+function amounts(p: any) {
+  const total = p?.is_member ? PRICE_MEMBER : PRICE_NONMEMBER
+  const paid = Number(p?.paid_amount || 0)
+  const rest = Math.max(total - paid, 0)
+  return { total, paid, rest }
+}
+// inlocuieste {{rest}}, {{total}}, {{avans}}/{{achitat}} cu sumele persoanei
+function personalize(text: string, p: any): string {
+  const { total, paid, rest } = amounts(p)
+  return String(text ?? '')
+    .replace(/\{\{\s*rest\s*\}\}/gi, String(rest))
+    .replace(/\{\{\s*total\s*\}\}/gi, String(total))
+    .replace(/\{\{\s*(avans|achitat)\s*\}\}/gi, String(paid))
+}
+
 async function sendOne(toEmail: string, toName: string, subject: string, html: string) {
   const res = await fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'POST',
@@ -57,17 +74,17 @@ Deno.serve(async (req) => {
 
     // trimitere catre o singura persoana (buton pe rand)
     if (single_id) {
-      const { data: one } = await admin.from('participants').select('full_name, first_name, email, access_token').eq('id', single_id).maybeSingle()
+      const { data: one } = await admin.from('participants').select('full_name, first_name, email, access_token, is_member, paid_amount').eq('id', single_id).maybeSingle()
       if (!one) return json({ error: 'Persoana nu a fost gasita.' }, 404)
       if (typeof one.email !== 'string' || !one.email.includes('@')) return json({ error: 'Persoana nu are email valid.' }, 400)
       const first = one.first_name || String(one.full_name || '').split(' ').slice(-1)[0] || 'prieten'
       try {
-        await sendOne(one.email, String(one.full_name || ''), subject, emailHtml(first, message, link_base + one.access_token))
+        await sendOne(one.email, String(one.full_name || ''), personalize(subject, one), emailHtml(first, personalize(message, one), link_base + one.access_token))
       } catch (e) { return json({ error: (e as Error).message }, 500) }
       return json({ single: true, sent_to: one.email })
     }
 
-    let q = admin.from('participants').select('full_name, first_name, email, access_token').not('email', 'is', null)
+    let q = admin.from('participants').select('full_name, first_name, email, access_token, is_member, paid_amount').not('email', 'is', null)
     if (only_confirmed) q = q.eq('status', 'confirmat')
     const { data: parts } = await q
     const valid = (parts ?? []).filter((p: any) => typeof p.email === 'string' && p.email.includes('@'))
@@ -75,14 +92,14 @@ Deno.serve(async (req) => {
     if (test_email) {
       const sample = valid[0]
       const token = sample?.access_token ?? '00000000-0000-0000-0000-000000000000'
-      await sendOne(test_email, '(test)', `[TEST] ${subject}`, emailHtml('(test)', message, link_base + token))
+      await sendOne(test_email, '(test)', `[TEST] ${personalize(subject, sample)}`, emailHtml('(test)', personalize(message, sample), link_base + token))
       return json({ test: true, sent_to: test_email })
     }
 
     let sent = 0; const errors: string[] = []
     for (const p of valid) {
       const first = p.first_name || String(p.full_name || '').split(' ').slice(-1)[0] || 'prieten'
-      try { await sendOne(p.email, String(p.full_name || ''), subject, emailHtml(first, message, link_base + p.access_token)); sent++ }
+      try { await sendOne(p.email, String(p.full_name || ''), personalize(subject, p), emailHtml(first, personalize(message, p), link_base + p.access_token)); sent++ }
       catch (e) { errors.push(`${p.email}: ${(e as Error).message}`) }
       await sleep(150)
     }

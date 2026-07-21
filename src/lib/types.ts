@@ -39,6 +39,8 @@ export type Participant = {
   emergency_phone?: string | null
   medical_info?: string | null
   sign_date?: string | null
+  is_member?: boolean
+  paid_amount?: number
 }
 
 export type Room = {
