@@ -53,8 +53,20 @@ Deno.serve(async (req) => {
     if (!BREVO_API_KEY) return json({ error: 'Lipseste BREVO_API_KEY in secretele edge function.' }, 400)
     if (!BREVO_FROM_EMAIL) return json({ error: 'Lipseste BREVO_FROM_EMAIL (expeditor validat in Brevo).' }, 400)
 
-    const { subject, message, link_base, only_confirmed = true, test_email } = await req.json()
+    const { subject, message, link_base, only_confirmed = true, test_email, single_id } = await req.json()
     if (!subject || !message || !link_base) return json({ error: 'subject, message, link_base necesare' }, 400)
+
+    // trimitere catre o singura persoana (buton pe rand)
+    if (single_id) {
+      const { data: one } = await admin.from('participants').select('full_name, first_name, email, access_token').eq('id', single_id).maybeSingle()
+      if (!one) return json({ error: 'Persoana nu a fost gasita.' }, 404)
+      if (typeof one.email !== 'string' || !one.email.includes('@')) return json({ error: 'Persoana nu are email valid.' }, 400)
+      const first = one.first_name || String(one.full_name || '').split(' ').slice(-1)[0] || 'prieten'
+      try {
+        await sendOne(one.email, String(one.full_name || ''), subject, emailHtml(first, message, link_base + one.access_token))
+      } catch (e) { return json({ error: (e as Error).message }, 500) }
+      return json({ single: true, sent_to: one.email })
+    }
 
     let q = admin.from('participants').select('full_name, first_name, email, access_token').not('email', 'is', null)
     if (only_confirmed) q = q.eq('status', 'confirmat')

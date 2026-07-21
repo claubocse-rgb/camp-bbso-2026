@@ -23,6 +23,9 @@ export default function Invitatii() {
   const [message, setMessage] = useState('Salut! Îți trimitem pagina ta personală pentru tabără. Acolo vezi camera în care stai, cu cine, ora de plecare, orarul și regulamentul — și te rugăm să confirmi (semnezi) și să ne spui mărimea ta de tricou. Mulțumim!')
   const [sending, setSending] = useState(false)
   const [sendResult, setSendResult] = useState('')
+  const [testEmail, setTestEmail] = useState('')
+  const [rowBusy, setRowBusy] = useState<string | null>(null)
+  const [rowMsg, setRowMsg] = useState<Record<string, string>>({})
   const fileRef = useRef<HTMLInputElement>(null)
 
   const load = useCallback(async () => {
@@ -72,13 +75,26 @@ export default function Invitatii() {
 
   const linkBase = () => `${window.location.origin}${import.meta.env.BASE_URL}p/`
   async function sendTest() {
-    if (!profile?.email) { setSendResult('Nu am emailul tău.'); return }
+    const dest = (testEmail.trim() || profile?.email || '').trim()
+    if (!dest.includes('@')) { setSendResult('Scrie o adresă de email pentru test.'); return }
     setSending(true); setSendResult('')
     const { data, error } = await supabase.functions.invoke('send-invites', {
-      body: { subject, message, link_base: linkBase(), only_confirmed: onlyConfirmed, test_email: profile.email },
+      body: { subject, message, link_base: linkBase(), only_confirmed: onlyConfirmed, test_email: dest },
     })
     setSending(false)
-    setSendResult(error ? 'Eroare: ' + error.message : `Test trimis la ${profile.email}. Verifică inbox/spam.`)
+    setSendResult(error ? 'Eroare: ' + error.message : `Test trimis la ${dest}. Verifică inbox/spam.`)
+  }
+  async function sendToOne(p: P) {
+    if (!p.email) { setRowMsg((m) => ({ ...m, [p.id]: 'fără email' })); return }
+    if (!confirm(`Trimit invitația la ${p.full_name} (${p.email})?`)) return
+    setRowBusy(p.id)
+    const { data, error } = await supabase.functions.invoke('send-invites', {
+      body: { subject, message, link_base: linkBase(), single_id: p.id },
+    })
+    setRowBusy(null)
+    const err = error?.message || (data as any)?.error
+    setRowMsg((m) => ({ ...m, [p.id]: err ? 'eroare' : '✓ trimis' }))
+    setTimeout(() => setRowMsg((m) => { const n = { ...m }; delete n[p.id]; return n }), 5000)
   }
   async function sendAll() {
     const n = people.filter((p) => p.email && (!onlyConfirmed || p.status !== 'rezerva')).length
@@ -134,8 +150,11 @@ export default function Invitatii() {
             <div className="form" style={{ marginTop: 10 }}>
               <label>Subiect<input value={subject} onChange={(e) => setSubject(e.target.value)} /></label>
               <label>Mesaj<textarea rows={5} value={message} onChange={(e) => setMessage(e.target.value)} /></label>
+              <label>Email pentru test (poți testa la orice adresă)
+                <input type="email" value={testEmail} onChange={(e) => setTestEmail(e.target.value)} placeholder={profile?.email || 'nume@exemplu.com'} />
+              </label>
               <div className="email-actions">
-                <button className="btn-secondary" onClick={sendTest} disabled={sending}>{sending ? 'Se trimite…' : 'Trimite test la mine'}</button>
+                <button className="btn-secondary" onClick={sendTest} disabled={sending}>{sending ? 'Se trimite…' : 'Trimite test'}</button>
                 <button className="btn-primary" onClick={sendAll} disabled={sending}>Trimite la toți</button>
               </div>
               {sendResult && <p className={'small ' + (sendResult.startsWith('Eroare') ? 'error-text' : 'muted')}>{sendResult}</p>}
@@ -164,6 +183,9 @@ export default function Invitatii() {
                       <td className="muted small">{p.email || '—'}</td>
                       <td className="muted small link-cell">{portalLink(p.access_token)}</td>
                       <td className="nowrap">
+                        <button className="link-btn" onClick={() => sendToOne(p)} disabled={!p.email || rowBusy === p.id} title={p.email ? `Trimite invitația la ${p.email}` : 'Fără email'}>
+                          {rowBusy === p.id ? '…' : (rowMsg[p.id] || (p.email ? 'Trimite' : 'fără email'))}
+                        </button>
                         <button className="link-btn" onClick={() => copyOne(p)}>{copiedId === p.id ? '✓ copiat' : 'Copiază'}</button>
                       </td>
                     </tr>
