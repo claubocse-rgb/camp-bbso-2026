@@ -12,7 +12,7 @@ const BREVO_FROM_EMAIL = Deno.env.get('BREVO_FROM_EMAIL') ?? ''
 const BREVO_FROM_NAME = Deno.env.get('BREVO_FROM_NAME') ?? 'Camp BBSO 2026'
 
 const admin = createClient(SUPABASE_URL, SERVICE_KEY)
-const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, content-type', 'Access-Control-Allow-Methods': 'POST, OPTIONS' }
+const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type', 'Access-Control-Allow-Methods': 'POST, OPTIONS' }
 const json = (o: unknown, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { ...cors, 'Content-Type': 'application/json' } })
 
 // transliterare pt fontul standard (fara diacritice ce nu-s in WinAnsi)
