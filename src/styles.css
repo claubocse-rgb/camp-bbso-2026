@@ -319,3 +319,211 @@ h2 { font-size: 1rem; margin: 0; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 .chip { background: #fff; border: 1px solid #f0e2cf; border-radius: 999px; padding: 3px 10px; font-size: .8rem; }
 
+
+/* ============ MODIFICARI: autocomplete, timetable, participanti, studiu, camere ============ */
+.page.wide { max-width: 1200px; }
+.head-actions { display: flex; gap: 8px; }
+.form-actions { display: flex; gap: 8px; justify-content: flex-end; }
+.btn-secondary.danger { color: var(--danger); border-color: #e6c9c9; }
+
+/* autocomplete */
+.ac { position: relative; width: 100%; }
+.ac input { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; font-size: .9rem; font-family: inherit; }
+.ac input:focus { outline: none; border-color: var(--green-500); box-shadow: 0 0 0 3px rgba(52,160,125,.15); }
+.ac-list { position: absolute; top: 100%; left: 0; right: 0; margin-top: 3px; background: #fff; border: 1px solid var(--line); border-radius: 9px; box-shadow: 0 10px 30px rgba(16,36,28,.15); z-index: 40; max-height: 240px; overflow-y: auto; }
+.ac-item { display: block; width: 100%; text-align: left; padding: 8px 11px; border: none; background: none; cursor: pointer; font-size: .9rem; }
+.ac-item.hi, .ac-item:hover { background: #eef6f1; }
+.ac-item.ac-new { color: var(--green-700); font-weight: 600; border-top: 1px solid var(--line); }
+
+/* timetable orar */
+.timetable { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(150px, 1fr); gap: 10px; overflow-x: auto; padding-bottom: 8px; }
+.tt-col { background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); display: flex; flex-direction: column; }
+.tt-head { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 9px 11px; background: var(--green-900); color: #fff; font-weight: 600; font-size: .82rem; }
+.tt-add { width: 22px; height: 22px; border-radius: 6px; border: none; background: rgba(255,255,255,.2); color: #fff; cursor: pointer; font-size: 1rem; line-height: 1; }
+.tt-add:hover { background: var(--green-600); }
+.tt-body { padding: 8px; display: flex; flex-direction: column; gap: 6px; min-height: 60px; }
+.tt-empty { text-align: center; padding: 10px 0; }
+.tt-act { border: 1px solid var(--line); border-left: 3px solid var(--green-500); border-radius: 8px; padding: 7px 9px; cursor: pointer; background: #fff; transition: .12s; }
+.tt-act:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
+.tt-act.kind-masa { border-left-color: #e0a458; }
+.tt-act.kind-studiu { border-left-color: #4a7fb5; }
+.tt-act.kind-joc { border-left-color: #c86bb0; }
+.tt-act.kind-seara { border-left-color: #6b5bc8; }
+.tt-act.kind-liber { border-left-color: #7bbf6b; }
+.tt-time { font-weight: 700; color: var(--green-700); font-size: .76rem; }
+.tt-title { font-weight: 600; font-size: .84rem; }
+.tt-meta { display: flex; flex-wrap: wrap; gap: 6px; font-size: .7rem; color: var(--muted); margin-top: 3px; }
+
+/* participanti table */
+.p-toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.search { flex: 1; max-width: 340px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; font-size: .9rem; font-family: inherit; }
+.search:focus { outline: none; border-color: var(--green-500); box-shadow: 0 0 0 3px rgba(52,160,125,.15); }
+.table-wrap { overflow-x: auto; background: var(--card); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); }
+.p-table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+.p-table th { text-align: left; padding: 10px 12px; border-bottom: 2px solid var(--line); color: var(--muted); font-size: .76rem; text-transform: uppercase; letter-spacing: .4px; }
+.p-table td { padding: 9px 12px; border-bottom: 1px solid var(--line); }
+.p-table tbody tr:hover { background: var(--paper); }
+
+/* studiu pe zile */
+.study-days { display: flex; flex-direction: column; gap: 20px; }
+.study-day { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; box-shadow: var(--shadow); }
+.study-day-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.study-day-head h2 { color: var(--green-700); text-transform: capitalize; }
+.game-time { color: var(--green-700); font-weight: 700; }
+
+/* camere layout */
+.map-box { margin-bottom: 18px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); }
+.map-toggle { width: 100%; text-align: left; padding: 10px 14px; border: none; background: none; cursor: pointer; font-weight: 600; color: var(--green-700); }
+.map-box img { width: 100%; display: block; }
+.camere-layout { display: grid; grid-template-columns: 1fr 300px; gap: 18px; align-items: start; }
+.camere-side { position: sticky; top: 16px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; box-shadow: var(--shadow); }
+.camere-side h3 { margin: 0 0 10px; font-size: 1rem; }
+.camere-side .search { max-width: 100%; margin-bottom: 10px; width: 100%; }
+.side-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; max-height: 60vh; overflow-y: auto; }
+.side-list li { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 7px; font-size: .84rem; }
+.side-list li .dot { width: 9px; height: 9px; border-radius: 50%; background: #cdd6d1; flex-shrink: 0; }
+.side-list li.placed { background: #eaf7f0; }
+.side-list li.placed .dot { background: var(--green-600); }
+.side-name { flex: 1; }
+.side-room { font-size: .68rem; color: var(--green-700); }
+.team-add { display: flex; gap: 6px; align-items: center; margin-top: 8px; }
+
+@media (max-width: 900px) {
+  .camere-layout { grid-template-columns: 1fr; }
+  .camere-side { position: static; }
+}
+
+/* segmented filter + status rezerve */
+.seg { display: inline-flex; gap: 2px; background: #eef2ef; padding: 3px; border-radius: 10px; margin-bottom: 14px; }
+.seg button { border: none; background: none; padding: 7px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: .84rem; color: var(--muted); }
+.seg button.on { background: #fff; color: var(--green-700); box-shadow: var(--shadow); }
+.status-pill { border: none; cursor: pointer; font-weight: 700; font-size: .7rem; padding: 3px 10px; border-radius: 999px; }
+.status-pill.confirmat { background: #eaf4ef; color: var(--green-700); }
+.status-pill.rezerva { background: #fdeede; color: #b06a1c; }
+.p-table tr.is-reserve td { background: #fffaf3; }
+.check-row { flex-direction: row !important; align-items: center; gap: 8px; font-weight: 500 !important; }
+.check-row input { width: auto; }
+
+/* participanti detalii + tricou */
+.tshirt { padding: 4px 6px; border: 1px solid var(--line); border-radius: 7px; font-size: .82rem; font-family: inherit; background: #fff; }
+.linklike { background: none; border: none; padding: 0; color: var(--ink); font-weight: 600; cursor: pointer; font-size: inherit; text-align: left; }
+.linklike:hover { color: var(--green-700); text-decoration: underline; }
+.nowrap { white-space: nowrap; }
+.detail { display: flex; flex-direction: column; gap: 2px; }
+.d-row { display: grid; grid-template-columns: 150px 1fr; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: .88rem; }
+.d-row:last-child { border-bottom: none; }
+.d-label { color: var(--muted); font-weight: 600; }
+.d-val { word-break: break-word; }
+
+/* organizatori */
+.org-section { margin-bottom: 26px; }
+.org-h { font-size: 1rem; color: var(--green-700); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.pending-badge { background: var(--danger); color: #fff; font-size: .7rem; font-weight: 800; padding: 1px 8px; border-radius: 999px; }
+.person-head { display: flex; align-items: center; gap: 10px; }
+.person-name { font-weight: 600; }
+.org-actions { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.org-actions select { padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; font-family: inherit; font-size: .85rem; }
+.pre-approve { display: flex; gap: 8px; margin: 8px 0; max-width: 420px; }
+.pre-approve input { flex: 1; padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; font-family: inherit; }
+.allowed-list { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; max-width: 420px; }
+.allowed-list li { display: flex; justify-content: space-between; align-items: center; padding: 7px 10px; background: var(--paper); border-radius: 8px; font-size: .88rem; }
+
+/* bell item as button */
+.bell-item { display: block; width: 100%; text-align: left; border: none; background: none; border-bottom: 1px solid var(--line); }
+.bell-item.clickable { cursor: pointer; }
+.bell-item.clickable:hover { background: #eef6f1; }
+
+/* ============ PORTAL PARTICIPANT (public) ============ */
+.portal-screen { min-height: 100%; background: radial-gradient(1000px 500px at 50% -10%, #d9efe4, var(--paper)); display: grid; place-items: start center; padding: 20px 14px 40px; }
+.portal-wrap { width: 100%; max-width: 460px; display: flex; flex-direction: column; gap: 14px; }
+.portal-head { text-align: center; padding: 10px 0 4px; }
+.p-brand { display: inline-flex; align-items: baseline; gap: 6px; margin-bottom: 10px; }
+.portal-head h1 { font-size: 1.6rem; }
+.rez-note { margin-top: 10px; background: #fdeede; color: #b06a1c; padding: 8px 12px; border-radius: 10px; font-size: .85rem; font-weight: 600; }
+.portal-card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px; box-shadow: var(--shadow); }
+.portal-card.center { text-align: center; }
+.portal-card h2 { font-size: 1.05rem; margin-bottom: 8px; }
+.room-big { font-size: 1.2rem; font-weight: 700; color: var(--green-700); margin: 4px 0; }
+.roommates { margin-top: 10px; font-size: .92rem; }
+.roommates ul { margin: 6px 0 0; padding-left: 18px; }
+.roommates li { padding: 2px 0; }
+.size-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px; }
+.size-btn { padding: 12px 0; border: 1px solid var(--line); border-radius: 12px; background: #fff; font-weight: 700; cursor: pointer; font-size: 1rem; transition: .12s; }
+.size-btn:hover { border-color: var(--green-500); }
+.size-btn.on { background: var(--green-600); color: #fff; border-color: var(--green-600); }
+.saved-note { color: var(--green-700); font-weight: 700; margin-top: 8px; font-size: .9rem; }
+.portal-day { margin-top: 12px; }
+.portal-day h3 { font-size: .9rem; color: var(--green-700); text-transform: capitalize; margin-bottom: 4px; }
+.portal-orar { list-style: none; margin: 0; padding: 0; }
+.portal-orar li { display: flex; gap: 10px; padding: 5px 0; border-bottom: 1px solid var(--line); font-size: .88rem; }
+.portal-orar li:last-child { border-bottom: none; }
+.po-time { font-weight: 700; color: var(--green-700); min-width: 42px; }
+.po-title { flex: 1; }
+.portal-foot { text-align: center; padding: 6px 0 0; }
+
+/* invitatii admin */
+.flash { background: #eaf7f0; color: var(--green-700); border: 1px solid #cfe8dd; padding: 10px 14px; border-radius: 10px; font-weight: 600; font-size: .88rem; margin-bottom: 14px; }
+.portal-settings { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.portal-settings .card h2 { font-size: 1rem; margin-bottom: 10px; }
+.inline-form { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.inline-form input[type=text], .inline-form input:not([type]) { flex: 1; min-width: 160px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; font-family: inherit; }
+.link-cell { max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 760px) { .portal-settings { grid-template-columns: 1fr; } }
+
+/* buton stergere in lista laterala camere */
+.side-list li { position: relative; }
+.side-del { background: none; border: none; color: var(--muted); cursor: pointer; font-size: .8rem; padding: 2px 4px; border-radius: 5px; opacity: .5; }
+.side-del:hover { color: var(--danger); background: #fbeaea; opacity: 1; }
+
+/* locuri blocate in camere */
+.blocked-spot span { color: var(--muted); font-style: italic; }
+.blocked-spot { background: #f3f0ea !important; }
+.block-btn { flex-shrink: 0; background: #fff; border: 1px solid var(--line); border-radius: 7px; padding: 5px 8px; cursor: pointer; font-size: .85rem; }
+.block-btn:hover { border-color: #e0a458; background: #fff8f0; }
+
+/* filtre participanti */
+.filters-row { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; margin-bottom: 14px; padding: 12px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; }
+.filters-row label { display: flex; flex-direction: column; gap: 4px; font-size: .78rem; font-weight: 600; color: var(--muted); }
+.filters-row select { padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; font-family: inherit; font-size: .88rem; }
+.age-range { display: flex; gap: 6px; }
+.age-range input { width: 70px; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; font-family: inherit; font-size: .88rem; }
+
+/* tip: lideri si copii lor evidentiati */
+.p-table tr.kind-lider td { background: #eaf2fb; }
+.p-table tr.kind-lider:hover td { background: #dfeafa; }
+.p-table tr.kind-copil_lider td { background: #f3eefb; }
+.p-table tr.kind-copil_lider:hover td { background: #ece3fa; }
+.p-table tr.kind-lider.is-reserve td, .p-table tr.kind-copil_lider.is-reserve td { background: #fff6ea; }
+.kind-tag { display: inline-block; margin-left: 8px; font-size: .64rem; font-weight: 800; padding: 2px 7px; border-radius: 999px; vertical-align: middle; }
+.kind-tag.lider { background: #4a7fb5; color: #fff; }
+.kind-tag.copil { background: #8a6bc8; color: #fff; }
+.kind-select { min-width: 108px; }
+
+/* bifa cazat in participanti */
+.cazat-cell { text-align: center; }
+.cazat-check { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--green-600); color: #fff; font-weight: 900; font-size: 1rem; box-shadow: 0 1px 3px rgba(42,136,105,.4); }
+.cazat-no { color: #cdd6d1; font-size: 1.2rem; }
+
+/* pe telefon: bifa mai mica + tabel mai compact ca sa incapa varsta */
+@media (max-width: 760px) {
+  .cazat-check { width: 18px; height: 18px; font-size: .72rem; box-shadow: none; }
+  .cazat-no { font-size: 1rem; }
+  .p-table { font-size: .78rem; }
+  .p-table th, .p-table td { padding: 6px 7px; }
+  .cazat-cell { padding-left: 4px !important; padding-right: 4px !important; }
+  .tshirt, .kind-select { min-width: 0; }
+}
+
+/* semnatura in portal */
+.agree-row { display: flex; gap: 10px; align-items: flex-start; font-size: .9rem; line-height: 1.4; cursor: pointer; }
+.agree-row input { margin-top: 3px; width: 18px; height: 18px; flex-shrink: 0; }
+.sign-name { display: flex; flex-direction: column; gap: 5px; font-size: .85rem; font-weight: 600; margin: 12px 0; }
+.sign-name input { padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; font-family: inherit; font-size: 1rem; }
+.signed-ok { color: var(--green-700); font-weight: 700; }
+.email-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.sign-name textarea { padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; font-family: inherit; font-size: 1rem; resize: vertical; }
+.decl-form { display: flex; flex-direction: column; }
+.decl-summary { background: #f2f7f4; border-radius: 10px; padding: 10px 12px; margin-bottom: 4px; }
+.resend-details { margin-top: 10px; }
+.resend-details summary { cursor: pointer; color: var(--green-700); font-weight: 600; font-size: .85rem; }
+.detail-sep { margin: 14px 0 6px; font-weight: 700; color: var(--green-700); border-top: 1px solid var(--line); padding-top: 10px; }

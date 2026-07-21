@@ -254,6 +254,18 @@ function DetailModal({ p, teams, rooms, onClose }: {
         <Row label="Cameră" value={p.room_id ? rooms[p.room_id] : null} />
         <Row label="Sugestii" value={p.suggestions} />
         <Row label="Note" value={p.notes} />
+        {(p.consent_accepted || p.parent_name || p.emergency_name || p.medical_info) && (
+          <>
+            <div className="detail-sep">Declarație semnată</div>
+            <Row label="Semnat de" value={p.consent_accepted ? (p.consent_name || p.full_name) : null} />
+            <Row label="Data semnării" value={p.consent_at ? new Date(p.consent_at).toLocaleString('ro-RO') : p.sign_date} />
+            <Row label="Părinte / tutore" value={p.parent_name} />
+            <Row label="Telefon părinte" value={p.parent_phone} />
+            <Row label="Contact urgență" value={p.emergency_name} />
+            <Row label="Telefon urgență" value={p.emergency_phone} />
+            <Row label="Info medicale" value={p.medical_info} />
+          </>
+        )}
       </div>
     </Modal>
   )

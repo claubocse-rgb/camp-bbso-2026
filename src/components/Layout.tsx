@@ -8,12 +8,15 @@ const NAV = [
   { to: '/orar', label: 'Orar', icon: 'orar' as const },
   { to: '/echipe-studiu', label: 'Echipe studiu', icon: 'studiu-team' as const },
   { to: '/echipe-jocuri', label: 'Echipe jocuri', icon: 'jocuri-team' as const },
+  { to: '/participanti', label: 'Participanți', icon: 'participanti' as const },
   { to: '/camere', label: 'Camere', icon: 'camere' as const },
   { to: '/studiu', label: 'Studiu', icon: 'studiu' as const },
   { to: '/jocuri', label: 'Jocuri', icon: 'jocuri' as const },
   { to: '/todo', label: 'To-do', icon: 'todo' as const },
   { to: '/chat', label: 'Chat', icon: 'chat' as const },
   { to: '/alerte', label: 'Alerte', icon: 'alerte' as const },
+  { to: '/organizatori', label: 'Organizatori', icon: 'organizatori' as const, adminOnly: true },
+  { to: '/invitatii', label: 'Invitații', icon: 'invitatii' as const, adminOnly: true },
 ]
 
 export default function Layout() {
@@ -27,7 +30,7 @@ export default function Layout() {
           <span className="brand-year">2026</span>
         </div>
         <nav className="nav">
-          {NAV.map((item) => (
+          {NAV.filter((item) => !item.adminOnly || profile?.role === 'admin').map((item) => (
             <NavLink
               key={item.to}
               to={item.to}

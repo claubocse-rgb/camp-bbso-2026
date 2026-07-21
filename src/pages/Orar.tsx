@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase'
 import { useOrganizers, organizerName } from '../lib/hooks'
 import type { Activity } from '../lib/types'
 import { ACTIVITY_KINDS } from '../lib/types'
+import { CAMP_DAYS } from '../lib/week'
 import { useAuth } from '../context/AuthProvider'
 import Modal from '../components/Modal'
 
@@ -14,7 +15,6 @@ export default function Orar() {
   const [modal, setModal] = useState<Partial<Activity> | null>(null)
 
   const load = useCallback(async () => {
-    setLoading(true)
     const { data } = await supabase.from('activities').select('*')
       .order('day').order('start_time', { nullsFirst: true })
     setItems((data as Activity[]) ?? [])
@@ -39,78 +39,75 @@ export default function Orar() {
     await supabase.from('activities').delete().eq('id', id); load()
   }
 
-  const days = [...new Set(items.map((i) => i.day))]
-
-  if (loading) return <PageWrap><div className="spinner-inline"><div className="spinner" /></div></PageWrap>
-
   return (
-    <PageWrap onAdd={() => setModal({ notify_minutes_before: 15, kind: 'general' })}>
-      {items.length === 0 && <p className="muted">Niciun eveniment în orar. Adaugă primul.</p>}
-      {days.map((day) => (
-        <div key={day} className="day-block">
-          <h2 className="day-title">{formatDay(day)}</h2>
-          <div className="timeline">
-            {items.filter((i) => i.day === day).map((a) => (
-              <div key={a.id} className={'act-row kind-' + a.kind}>
-                <div className="act-time">{a.start_time ? a.start_time.slice(0, 5) : '—'}{a.end_time ? `–${a.end_time.slice(0, 5)}` : ''}</div>
-                <div className="act-main">
-                  <div className="act-title">{a.title} <span className="kind-badge">{kindLabel(a.kind)}</span></div>
-                  {a.description && <div className="muted small">{a.description}</div>}
-                  <div className="act-meta">
-                    {a.location && <span>📍 {a.location}</span>}
-                    {a.responsible_id && <span>👤 {organizerName(organizers, a.responsible_id)}</span>}
-                    <span>🔔 {a.notify_minutes_before} min înainte</span>
-                  </div>
-                </div>
-                <div className="act-edit">
-                  <button className="link-btn" onClick={() => setModal(a)}>Editează</button>
-                  <button className="link-btn danger" onClick={() => remove(a.id)}>Șterge</button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      ))}
-
-      {modal && (
-        <Modal title={modal.id ? 'Editează activitatea' : 'Activitate nouă'} onClose={() => setModal(null)}>
-          <ActivityForm initial={modal} organizers={organizers} onSave={save} />
-        </Modal>
-      )}
-    </PageWrap>
-  )
-}
-
-function PageWrap({ children, onAdd }: { children: React.ReactNode; onAdd?: () => void }) {
-  return (
-    <div className="page">
+    <div className="page wide">
       <header className="page-head with-action">
         <div>
           <h1>Orar tabără</h1>
-          <p className="muted">Programul pe zile și ore, cu responsabil și reminder.</p>
+          <p className="muted">Program pe zile, 17–23 august. Adaugă ora și activitatea.</p>
         </div>
-        {onAdd && <button className="btn-primary" onClick={onAdd}>+ Activitate</button>}
       </header>
-      {children}
+
+      {loading ? <div className="spinner-inline"><div className="spinner" /></div> : (
+        <div className="timetable">
+          {CAMP_DAYS.map((day) => {
+            const acts = items.filter((i) => i.day === day.date)
+            return (
+              <div key={day.date} className="tt-col">
+                <div className="tt-head">
+                  <span>{day.label}</span>
+                  <button className="tt-add" title="Adaugă activitate"
+                    onClick={() => setModal({ day: day.date, notify_minutes_before: 15, kind: 'general' })}>+</button>
+                </div>
+                <div className="tt-body">
+                  {acts.length === 0 && <div className="tt-empty muted small">—</div>}
+                  {acts.map((a) => (
+                    <div key={a.id} className={'tt-act kind-' + a.kind} onClick={() => setModal(a)}>
+                      <div className="tt-time">{a.start_time ? a.start_time.slice(0, 5) : ''}{a.end_time ? `–${a.end_time.slice(0, 5)}` : ''}</div>
+                      <div className="tt-title">{a.title}</div>
+                      {(a.location || a.responsible_id) && (
+                        <div className="tt-meta">
+                          {a.location && <span>📍 {a.location}</span>}
+                          {a.responsible_id && <span>👤 {organizerName(organizers, a.responsible_id)}</span>}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {modal && (
+        <Modal title={modal.id ? 'Editează activitatea' : 'Activitate nouă'} onClose={() => setModal(null)}>
+          <ActivityForm initial={modal} organizers={organizers} onSave={save}
+            onDelete={modal.id ? () => { remove(modal.id!); setModal(null) } : undefined} />
+        </Modal>
+      )}
     </div>
   )
 }
 
 function ActivityForm({
-  initial, organizers, onSave,
+  initial, organizers, onSave, onDelete,
 }: {
-  initial: Partial<Activity>; organizers: ReturnType<typeof useOrganizers>; onSave: (a: Partial<Activity>) => void
+  initial: Partial<Activity>; organizers: ReturnType<typeof useOrganizers>
+  onSave: (a: Partial<Activity>) => void; onDelete?: () => void
 }) {
   const [a, setA] = useState<Partial<Activity>>(initial)
   const set = (k: keyof Activity, v: any) => setA((prev) => ({ ...prev, [k]: v }))
   return (
     <form className="form" onSubmit={(e) => { e.preventDefault(); onSave(a) }}>
-      <label>Titlu
+      <label>Titlu / activitate
         <input autoFocus value={a.title ?? ''} onChange={(e) => set('title', e.target.value)} placeholder="ex. Studiu biblic de dimineață" />
       </label>
       <div className="form-row">
         <label>Ziua
-          <input type="date" value={a.day ?? ''} onChange={(e) => set('day', e.target.value)} />
+          <select value={a.day ?? ''} onChange={(e) => set('day', e.target.value)}>
+            {CAMP_DAYS.map((d) => <option key={d.date} value={d.date}>{d.label}</option>)}
+          </select>
         </label>
         <label>Tip
           <select value={a.kind ?? 'general'} onChange={(e) => set('kind', e.target.value)}>
@@ -119,15 +116,15 @@ function ActivityForm({
         </label>
       </div>
       <div className="form-row">
-        <label>Început
+        <label>Ora început
           <input type="time" value={a.start_time ?? ''} onChange={(e) => set('start_time', e.target.value)} />
         </label>
-        <label>Sfârșit
+        <label>Ora sfârșit
           <input type="time" value={a.end_time ?? ''} onChange={(e) => set('end_time', e.target.value)} />
         </label>
       </div>
       <label>Loc
-        <input value={a.location ?? ''} onChange={(e) => set('location', e.target.value)} placeholder="ex. Sala mare" />
+        <input value={a.location ?? ''} onChange={(e) => set('location', e.target.value)} placeholder="ex. Sala mese, Capela…" />
       </label>
       <label>Responsabil
         <select value={a.responsible_id ?? ''} onChange={(e) => set('responsible_id', e.target.value)}>
@@ -138,16 +135,13 @@ function ActivityForm({
       <label>Descriere (opțional)
         <textarea value={a.description ?? ''} onChange={(e) => set('description', e.target.value)} rows={2} />
       </label>
-      <label>Notificare cu (minute înainte)
+      <label>Notificare (minute înainte)
         <input type="number" min={0} value={a.notify_minutes_before ?? 15} onChange={(e) => set('notify_minutes_before', Number(e.target.value))} />
       </label>
-      <button className="btn-primary" type="submit">Salvează</button>
+      <div className="form-actions">
+        {onDelete && <button type="button" className="btn-secondary danger" onClick={onDelete}>Șterge</button>}
+        <button className="btn-primary" type="submit">Salvează</button>
+      </div>
     </form>
   )
-}
-
-function kindLabel(k: string) { return ACTIVITY_KINDS.find((x) => x.value === k)?.label ?? k }
-function formatDay(d: string) {
-  try { return new Date(d + 'T00:00:00').toLocaleDateString('ro-RO', { weekday: 'long', day: 'numeric', month: 'long' }) }
-  catch { return d }
 }

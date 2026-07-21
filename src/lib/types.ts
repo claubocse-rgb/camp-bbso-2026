@@ -4,12 +4,41 @@ export type GameTeam = { id: string; name: string; description: string | null; c
 export type Participant = {
   id: string
   full_name: string
+  first_name: string | null
+  last_name: string | null
   gender: 'M' | 'F' | null
+  age: number | null
+  birth_date: string | null
+  phone: string | null
+  email: string | null
+  city: string | null
+  baptized: string | null
+  been_before: string | null
+  bbso_member: string | null
+  small_group: string | null
+  department: string | null
+  payment: string | null
+  payment_method: string | null
+  cazare: string | null
+  suggestions: string | null
+  tshirt_size: string | null
+  kind: 'participant' | 'lider' | 'copil_lider'
   study_team_id: string | null
   game_team_id: string | null
   room_id: string | null
+  status: 'confirmat' | 'rezerva'
   notes: string | null
   created_at: string
+  access_token?: string
+  consent_accepted?: boolean
+  consent_name?: string | null
+  consent_at?: string | null
+  parent_name?: string | null
+  parent_phone?: string | null
+  emergency_name?: string | null
+  emergency_phone?: string | null
+  medical_info?: string | null
+  sign_date?: string | null
 }
 
 export type Room = {
@@ -20,6 +49,7 @@ export type Room = {
   capacity: number
   beds: string | null
   bathroom: string | null
+  blocked: number
   sort_order: number
 }
 

@@ -1,13 +1,15 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthProvider'
 import { isPushSupported, currentSubscription, enablePush, disablePush } from '../lib/push'
 import Icon from './Icon'
 
-type Notif = { id: string; type: string; title: string; body: string | null; read: boolean; created_at: string }
+type Notif = { id: string; type: string; title: string; body: string | null; link: string | null; read: boolean; created_at: string }
 
 export default function NotificationsBell() {
   const { profile } = useAuth()
+  const navigate = useNavigate()
   const [items, setItems] = useState<Notif[]>([])
   const [open, setOpen] = useState(false)
   const [pushOn, setPushOn] = useState(false)
@@ -80,11 +82,12 @@ export default function NotificationsBell() {
           {items.length === 0 ? (
             <div className="bell-empty">Nicio notificare.</div>
           ) : items.map((n) => (
-            <div key={n.id} className={'bell-item' + (n.read ? '' : ' unread')}>
+            <button key={n.id} className={'bell-item' + (n.read ? '' : ' unread') + (n.link ? ' clickable' : '')}
+              onClick={() => { if (n.link) { navigate(n.link); setOpen(false) } }}>
               <div className="bell-title">{n.title}</div>
               {n.body && <div className="bell-body">{n.body}</div>}
               <div className="bell-time">{new Date(n.created_at).toLocaleString('ro-RO', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</div>
-            </div>
+            </button>
           ))}
         </div>
       )}

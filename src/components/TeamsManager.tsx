@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthProvider'
 import type { Participant } from '../lib/types'
 import Modal from './Modal'
+import NameAutocomplete from './NameAutocomplete'
 
 type Team = { id: string; name: string; description: string | null }
 type Kind = 'study' | 'game'
@@ -17,10 +18,10 @@ export default function TeamsManager({ kind }: { kind: Kind }) {
   const [people, setPeople] = useState<Participant[]>([])
   const [loading, setLoading] = useState(true)
   const [teamModal, setTeamModal] = useState<{ id?: string; name: string } | null>(null)
-  const [personModal, setPersonModal] = useState<{ teamId: string | null } | null>(null)
+  const [addingTo, setAddingTo] = useState<string | null>(null)
+  const [q, setQ] = useState('')
 
   const load = useCallback(async () => {
-    setLoading(true)
     const [{ data: t }, { data: p }] = await Promise.all([
       supabase.from(teamTable).select('id, name, description').order('name'),
       supabase.from('participants').select('*').order('full_name'),
@@ -29,8 +30,16 @@ export default function TeamsManager({ kind }: { kind: Kind }) {
     setPeople((p as Participant[]) ?? [])
     setLoading(false)
   }, [teamTable])
-
-  useEffect(() => { load() }, [load])
+  useEffect(() => {
+    load()
+    let t: ReturnType<typeof setTimeout>
+    const bump = () => { clearTimeout(t); t = setTimeout(load, 400) }
+    const ch = supabase.channel('teams-rt-' + teamTable)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'participants' }, bump)
+      .on('postgres_changes', { event: '*', schema: 'public', table: teamTable }, bump)
+      .subscribe()
+    return () => { clearTimeout(t); supabase.removeChannel(ch) }
+  }, [load, teamTable])
 
   async function saveTeam(name: string, id?: string) {
     if (!name.trim()) return
@@ -39,28 +48,26 @@ export default function TeamsManager({ kind }: { kind: Kind }) {
     setTeamModal(null); load()
   }
   async function deleteTeam(id: string) {
-    if (!confirm('Ștergi echipa? Membrii rămân, doar fără echipă.')) return
+    if (!confirm('Ștergi echipa? Membrii rămân în bază, doar fără echipă.')) return
     await supabase.from(teamTable).delete().eq('id', id); load()
   }
-  async function addPerson(name: string, gender: string, teamId: string | null) {
-    if (!name.trim()) return
-    await supabase.from('participants').insert({
-      full_name: name.trim(),
-      gender: gender || null,
-      [fk]: teamId,
-    })
-    setPersonModal(null); load()
-  }
-  async function movePerson(personId: string, teamId: string | null) {
+  async function assignExisting(personId: string, teamId: string | null) {
     await supabase.from('participants').update({ [fk]: teamId }).eq('id', personId); load()
   }
+  async function createAndAssign(name: string, teamId: string) {
+    await supabase.from('participants').insert({ full_name: name, [fk]: teamId }); load()
+  }
   async function deletePerson(id: string) {
-    if (!confirm('Ștergi participantul complet?')) return
+    if (!confirm('Ștergi participantul complet din bază?')) return
     await supabase.from('participants').delete().eq('id', id); load()
   }
 
   const unassigned = people.filter((p) => !(p as any)[fk])
   const membersOf = (teamId: string) => people.filter((p) => (p as any)[fk] === teamId)
+  const teamName = (id: string) => teams.find((t) => t.id === id)?.name ?? ''
+  const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+  const listed = q.trim() ? people.filter((p) => norm(p.full_name).includes(norm(q))) : people
+  const assignedCount = people.length - unassigned.length
 
   if (loading) return <div className="spinner-inline"><div className="spinner" /></div>
 
@@ -68,9 +75,13 @@ export default function TeamsManager({ kind }: { kind: Kind }) {
     <div>
       <div className="toolbar">
         <button className="btn-primary" onClick={() => setTeamModal({ name: '' })}>+ Echipă</button>
-        <button className="btn-secondary" onClick={() => setPersonModal({ teamId: null })}>+ Participant</button>
+        <span className="muted small" style={{ alignSelf: 'center' }}>
+          {people.length} participanți · {unassigned.length} fără echipă aici
+        </span>
       </div>
 
+      <div className="camere-layout">
+        <div className="camere-main">
       {teams.length === 0 && <p className="muted">Nicio echipă încă. Adaugă una ca să începi.</p>}
 
       <div className="teams-grid">
@@ -92,12 +103,8 @@ export default function TeamsManager({ kind }: { kind: Kind }) {
                   <li key={m.id}>
                     <span>{m.full_name}{m.gender ? ` (${m.gender})` : ''}</span>
                     <span className="row-actions">
-                      <select
-                        value={team.id}
-                        onChange={(e) => movePerson(m.id, e.target.value || null)}
-                        title="Mută în altă echipă"
-                      >
-                        <option value="">— fără echipă —</option>
+                      <select value={team.id} onChange={(e) => assignExisting(m.id, e.target.value || null)} title="Mută în altă echipă">
+                        <option value="">— scoate —</option>
                         {teams.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
                       </select>
                       <button className="link-btn danger" onClick={() => deletePerson(m.id)}>✕</button>
@@ -106,40 +113,48 @@ export default function TeamsManager({ kind }: { kind: Kind }) {
                 ))}
                 {members.length === 0 && <li className="muted small">Niciun membru</li>}
               </ul>
-              <button className="add-inline" onClick={() => setPersonModal({ teamId: team.id })}>+ adaugă în echipă</button>
+              {addingTo === team.id ? (
+                <div className="team-add">
+                  <NameAutocomplete
+                    participants={people}
+                    autoFocus
+                    placeholder="Scrie 1-2 litere…"
+                    onPick={(p) => assignExisting(p.id, team.id)}
+                    onCreate={(name) => createAndAssign(name, team.id)}
+                  />
+                  <button className="link-btn" onClick={() => setAddingTo(null)}>gata</button>
+                </div>
+              ) : (
+                <button className="add-inline" onClick={() => setAddingTo(team.id)}>+ adaugă în echipă</button>
+              )}
             </div>
           )
         })}
       </div>
-
-      {unassigned.length > 0 && (
-        <div className="unassigned">
-          <h3>Neatribuiți ({unassigned.length})</h3>
-          <ul className="member-list">
-            {unassigned.map((m) => (
-              <li key={m.id}>
-                <span>{m.full_name}{m.gender ? ` (${m.gender})` : ''}</span>
-                <span className="row-actions">
-                  <select value="" onChange={(e) => movePerson(m.id, e.target.value || null)}>
-                    <option value="">→ echipă…</option>
-                    {teams.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
-                  </select>
-                  <button className="link-btn danger" onClick={() => deletePerson(m.id)}>✕</button>
-                </span>
-              </li>
-            ))}
-          </ul>
         </div>
-      )}
+
+        <aside className="camere-side">
+          <h3>Toți ({people.length}) · {assignedCount} repartizați</h3>
+          <input className="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Caută…" />
+          <ul className="side-list">
+            {listed.map((p) => {
+              const tid = (p as any)[fk] as string | null
+              return (
+                <li key={p.id} className={tid ? 'placed' : ''} title={tid ? teamName(tid) : 'fără echipă'}>
+                  <span className="dot" />
+                  <span className="side-name">{p.full_name}</span>
+                  {tid && <span className="side-room">{teamName(tid)}</span>}
+                </li>
+              )
+            })}
+            {listed.length === 0 && <li className="muted small">Niciun rezultat.</li>}
+          </ul>
+        </aside>
+      </div>
 
       {teamModal && (
         <Modal title={teamModal.id ? 'Redenumește echipa' : 'Echipă nouă'} onClose={() => setTeamModal(null)}>
           <TeamForm initial={teamModal.name} onSave={(n) => saveTeam(n, teamModal.id)} />
-        </Modal>
-      )}
-      {personModal && (
-        <Modal title="Participant nou" onClose={() => setPersonModal(null)}>
-          <PersonForm teams={teams} defaultTeam={personModal.teamId} onSave={addPerson} />
         </Modal>
       )}
     </div>
@@ -154,37 +169,6 @@ function TeamForm({ initial, onSave }: { initial: string; onSave: (name: string)
         <input autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder="ex. Grupa Leilor" />
       </label>
       <button className="btn-primary" type="submit">Salvează</button>
-    </form>
-  )
-}
-
-function PersonForm({
-  teams, defaultTeam, onSave,
-}: {
-  teams: Team[]; defaultTeam: string | null; onSave: (name: string, gender: string, teamId: string | null) => void
-}) {
-  const [name, setName] = useState('')
-  const [gender, setGender] = useState('')
-  const [teamId, setTeamId] = useState(defaultTeam ?? '')
-  return (
-    <form onSubmit={(e) => { e.preventDefault(); onSave(name, gender, teamId || null) }} className="form">
-      <label>Nume participant
-        <input autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder="Nume și prenume" />
-      </label>
-      <label>Gen (opțional)
-        <select value={gender} onChange={(e) => setGender(e.target.value)}>
-          <option value="">—</option>
-          <option value="M">M</option>
-          <option value="F">F</option>
-        </select>
-      </label>
-      <label>Echipă
-        <select value={teamId} onChange={(e) => setTeamId(e.target.value)}>
-          <option value="">— fără echipă —</option>
-          {teams.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
-        </select>
-      </label>
-      <button className="btn-primary" type="submit">Adaugă</button>
     </form>
   )
 }
