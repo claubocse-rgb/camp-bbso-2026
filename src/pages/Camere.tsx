@@ -76,8 +76,7 @@ export default function Camere() {
   return (
     <Wrap map={mapEl}>
       <div className="rooms-summary">
-        <div className="sum-tile"><b>{totalOcc}</b><span>ocupate</span></div>
-        <div className="sum-tile"><b>{totalBlocked}</b><span>blocate</span></div>
+        <div className="sum-tile"><b>{totalOcc + totalBlocked}</b><span>{totalBlocked > 0 ? `ocupate (${totalBlocked} blocate)` : 'ocupate'}</span></div>
         <div className="sum-tile"><b>{Math.max(totalCap - totalOcc - totalBlocked, 0)}</b><span>libere</span></div>
         <div className="sum-tile"><b>{unassigned.length}</b><span>nerepartizați</span></div>
       </div>
@@ -87,7 +86,7 @@ export default function Camere() {
           {buildings.map((b) => {
             const bRooms = rooms.filter((r) => r.building === b)
             const cap = bRooms.reduce((s, r) => s + r.capacity, 0)
-            const occ = bRooms.reduce((s, r) => s + occupantsOf(r.id).length, 0)
+            const occ = bRooms.reduce((s, r) => s + occupantsOf(r.id).length + (r.blocked || 0), 0)
             const isOpen = openBuilding === b
             return (
               <div key={b} className="building">
