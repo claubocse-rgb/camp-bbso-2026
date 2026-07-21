@@ -101,7 +101,7 @@ export default function TeamsManager({ kind }: { kind: Kind }) {
               <ul className="member-list">
                 {members.map((m) => (
                   <li key={m.id}>
-                    <span>{m.full_name}{m.gender ? ` (${m.gender})` : ''}</span>
+                    <span>{m.full_name}{m.age != null ? `, ${m.age}` : ''}{m.gender ? ` (${m.gender})` : ''}</span>
                     <span className="row-actions">
                       <select value={team.id} onChange={(e) => assignExisting(m.id, e.target.value || null)} title="Mută în altă echipă">
                         <option value="">— scoate —</option>
@@ -142,7 +142,7 @@ export default function TeamsManager({ kind }: { kind: Kind }) {
               return (
                 <li key={p.id} className={tid ? 'placed' : ''} title={tid ? teamName(tid) : 'fără echipă'}>
                   <span className="dot" />
-                  <span className="side-name">{p.full_name}</span>
+                  <span className="side-name">{p.full_name}{p.age != null ? `, ${p.age}` : ''}</span>
                   {tid && <span className="side-room">{teamName(tid)}</span>}
                 </li>
               )
