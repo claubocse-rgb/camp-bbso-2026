@@ -97,6 +97,7 @@ export type Task = {
   description: string | null
   claimed_by: string | null
   claimed_at: string | null
+  assigned_to: string | null
   done: boolean
   done_at: string | null
   due_at: string | null
