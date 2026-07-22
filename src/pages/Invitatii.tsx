@@ -39,6 +39,7 @@ Până atunci, mai sunt câteva lucruri de rezolvat:
   const [sampleId, setSampleId] = useState('')
   const [rowBusy, setRowBusy] = useState<string | null>(null)
   const [rowMsg, setRowMsg] = useState<Record<string, string>>({})
+  const [viewBusy, setViewBusy] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
   const load = useCallback(async () => {
@@ -97,6 +98,15 @@ Până atunci, mai sunt câteva lucruri de rezolvat:
     setSending(false)
     const who = (data as any)?.sample
     setSendResult(error ? 'Eroare: ' + error.message : `Test trimis la ${dest}${who ? ` (cu datele lui ${who})` : ''}. Verifică inbox/spam.`)
+  }
+  async function viewSigned(p: P) {
+    const w = window.open('', '_blank')
+    setViewBusy(p.id)
+    const { data, error } = await supabase.functions.invoke('signed-pdf', { body: { participant_id: p.id } })
+    setViewBusy(null)
+    const url = (data as any)?.url
+    if (error || !url) { if (w) w.close(); flash('Nu am putut deschide PDF-ul: ' + (error?.message || (data as any)?.error || '')); return }
+    if (w) w.location.href = url; else window.open(url, '_blank')
   }
   async function sendToOne(p: P) {
     if (!p.email) { setRowMsg((m) => ({ ...m, [p.id]: 'fără email' })); return }
@@ -202,7 +212,9 @@ Până atunci, mai sunt câteva lucruri de rezolvat:
                   {list.map((p) => (
                     <tr key={p.id} className={p.email ? '' : 'no-email-row'}>
                       <td>{p.full_name}{!p.email && <span className="no-email-badge" title="Nu avem adresă de email">!</span>}</td>
-                      <td className="cazat-cell">{p.consent_accepted ? <span className="cazat-check" title="A semnat">✓</span> : <span className="cazat-no">·</span>}</td>
+                      <td className="cazat-cell">{p.consent_accepted
+                        ? <button className="link-btn" style={{ color: 'var(--green-700)', fontWeight: 600 }} onClick={() => viewSigned(p)} disabled={viewBusy === p.id} title="Vezi regulamentul semnat">{viewBusy === p.id ? '…' : '✓ Vezi'}</button>
+                        : <span className="cazat-no">·</span>}</td>
                       <td className="muted small">{p.email || '—'}</td>
                       <td className="muted small link-cell">{portalLink(p.access_token)}</td>
                       <td className="nowrap">
