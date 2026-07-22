@@ -214,28 +214,7 @@ export default function ParticipantPortal() {
           {signMsg && <p className={'small ' + (signMsg.startsWith('✓') ? 'saved-note' : 'error-text')}>{signMsg}</p>}
         </section>
 
-        <section className="portal-card">
-          <h2>🗓️ Orar</h2>
-          {data.activities.length === 0 ? <p className="muted">Orarul se publică în curând.</p> : (
-            CAMP_DAYS.map((day) => {
-              const list = acts(day.date)
-              if (list.length === 0) return null
-              return (
-                <div key={day.date} className="portal-day">
-                  <h3>{day.label}</h3>
-                  <ul className="portal-orar">
-                    {list.map((a, i) => (
-                      <li key={i}>
-                        <span className="po-time">{a.start_time ? a.start_time.slice(0, 5) : ''}</span>
-                        <span className="po-title">{a.title}{a.location ? ` · ${a.location}` : ''}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )
-            })
-          )}
-        </section>
+        {/* Orarul e ascuns momentan (nu e final). Se reactivează când e gata. */}
 
         <footer className="portal-foot muted small">Camp BBSO 2026 · Asociația Creștină Cristia</footer>
       </div>
