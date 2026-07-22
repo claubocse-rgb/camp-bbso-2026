@@ -85,8 +85,8 @@ export default function ParticipantPortal() {
     await load()
     setSignBusy(false)
     setSignMsg(fnErr
-      ? 'Am salvat semnătura, dar trimiterea pe email a eșuat. Organizatorii au totuși datele tale.'
-      : '✓ Gata! Regulamentul semnat a fost trimis pe email.')
+      ? 'Am salvat semnătura. (Documentul complet se generează în câteva momente.)'
+      : '✓ Gata! Regulamentul semnat a fost înregistrat. Mulțumim!')
   }
 
   if (state === 'loading') return <div className="portal-screen"><div className="spinner" /></div>
@@ -199,7 +199,7 @@ export default function ParticipantPortal() {
           {p.consent_accepted ? (
             <>
               <p className="signed-ok">✓ Ai semnat{p.consent_at ? ` pe ${new Date(p.consent_at).toLocaleDateString('ro-RO', { day: 'numeric', month: 'long', year: 'numeric' })}` : ''}{p.consent_name ? ` · ${p.consent_name}` : ''}</p>
-              <p className="muted small">Regulamentul semnat a fost trimis pe email organizatorilor. Dacă vrei să corectezi ceva, completează din nou mai jos și retrimite.</p>
+              <p className="muted small">Regulamentul semnat a fost înregistrat. Dacă vrei să corectezi ceva, completează din nou mai jos și retrimite.</p>
               <details className="resend-details">
                 <summary>Modifică / retrimite</summary>
                 {declForm}
