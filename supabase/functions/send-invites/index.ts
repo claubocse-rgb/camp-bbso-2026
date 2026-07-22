@@ -15,7 +15,7 @@ const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replac
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
 function emailHtml(firstName: string, message: string, link: string) {
-  const body = esc(message).replace(/\n/g, '<br>')
+  const body = esc(message).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>')
   return `<div style="font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;max-width:520px;margin:0 auto;color:#10241c">
     <div style="background:#0f3d2e;color:#fff;padding:18px 22px;border-radius:14px 14px 0 0"><b style="letter-spacing:1px">BBSO 2026</b></div>
     <div style="border:1px solid #e4ebe6;border-top:none;border-radius:0 0 14px 14px;padding:22px">

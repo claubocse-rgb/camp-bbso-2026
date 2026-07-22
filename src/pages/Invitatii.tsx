@@ -21,17 +21,24 @@ export default function Invitatii() {
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [subject, setSubject] = useState('Pagina ta pentru tabăra BBSO 2026')
   const [message, setMessage] = useState(`Salut!
+
 Ne bucurăm că te-ai înscris în tabără și abia așteptăm să petrecem timpul împreună și acolo!
+
 Până atunci, mai sunt câteva lucruri de rezolvat:
 ✅ Achită diferența rămasă pentru tabără.
 ✅ Comunică-ne mărimea de la tricou
-📅 Termenul limită este 3 august.
-✅ Citește și semnează regulamentul taberei. (Dacă ai sub 18 ani, acesta trebuie semnat și de unul dintre părinții tăi sau de tutorele tău.) - PDF
-📅 Termenul limită este 9 august.
+**📅 Termenul limită este 3 august.**
+
+✅ Citește și semnează regulamentul taberei. (Dacă ai sub 18 ani, acesta trebuie semnat și de unul dintre părinții tăi sau de tutorele tău.) - Dă click pe butonul „Deschide pagina ta" ca să găsești regulamentul
+**📅 Termenul limită este 9 august.**
+
 💳 Plata se poate face:
-- online, pe site-ul Bisericii. La secțiunea „Despre donație" este important să completezi „Plată Tabără". Dacă alegi această variantă, te rugăm să atașezi dovada plății la regulamentul semnat, iar apoi să ni le aduci împreună.
+
+- online, pe site-ul Bisericii. La secțiunea „Despre donație" este important să completezi „Plată Tabără [+ numele tău]". Dacă alegi această variantă, te rugăm să atașezi dovada plății la regulamentul semnat, iar apoi să ni le aduci împreună.
 - la Campus, duminică, între cele două programe, lângă Info Point.
+
 💰 Tu mai ai de achitat: {{rest}} lei.
+
 Îți mulțumim și ne vedem în curând! 😊`)
   const [sending, setSending] = useState(false)
   const [sendResult, setSendResult] = useState('')
