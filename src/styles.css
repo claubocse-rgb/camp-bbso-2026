@@ -549,3 +549,5 @@ h2 { font-size: 1rem; margin: 0; }
 .dash-task-main { display: flex; flex-direction: column; gap: 2px; }
 .dash-task-meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .badge-all { background: #e6f2ec; color: var(--green-700); font-weight: 600; font-size: .72rem; padding: 2px 7px; border-radius: 20px; }
+.btn-whatsapp { display: inline-block; background: #25D366; color: #fff; text-decoration: none; padding: 12px 22px; border-radius: 10px; font-weight: 700; }
+.btn-whatsapp:hover { background: #1ebe5b; }

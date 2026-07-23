@@ -85,8 +85,8 @@ export default function ParticipantPortal() {
     await load()
     setSignBusy(false)
     setSignMsg(fnErr
-      ? 'Am salvat semnătura. (Documentul complet se generează în câteva momente.)'
-      : '✓ Gata! Regulamentul semnat a fost înregistrat. Mulțumim!')
+      ? 'Am salvat semnătura, dar trimiterea pe email a eșuat. Organizatorii au totuși datele tale.'
+      : '✓ Gata! Regulamentul semnat a fost trimis pe email.')
   }
 
   if (state === 'loading') return <div className="portal-screen"><div className="spinner" /></div>
@@ -194,12 +194,20 @@ export default function ParticipantPortal() {
           </section>
         )}
 
+        {data.settings.whatsapp_url && (
+          <section className="portal-card">
+            <h2>💬 Grupul de WhatsApp</h2>
+            <p className="muted small">Intră în grupul taberei ca să primești toate informațiile importante.</p>
+            <a className="btn-whatsapp" href={data.settings.whatsapp_url} target="_blank" rel="noreferrer">Intră în grup</a>
+          </section>
+        )}
+
         <section className="portal-card">
           <h2>✍️ Declarație & semnătură</h2>
           {p.consent_accepted ? (
             <>
               <p className="signed-ok">✓ Ai semnat{p.consent_at ? ` pe ${new Date(p.consent_at).toLocaleDateString('ro-RO', { day: 'numeric', month: 'long', year: 'numeric' })}` : ''}{p.consent_name ? ` · ${p.consent_name}` : ''}</p>
-              <p className="muted small">Regulamentul semnat a fost înregistrat. Dacă vrei să corectezi ceva, completează din nou mai jos și retrimite.</p>
+              <p className="muted small">Regulamentul semnat a fost trimis pe email organizatorilor. Dacă vrei să corectezi ceva, completează din nou mai jos și retrimite.</p>
               <details className="resend-details">
                 <summary>Modifică / retrimite</summary>
                 {declForm}
@@ -214,7 +222,28 @@ export default function ParticipantPortal() {
           {signMsg && <p className={'small ' + (signMsg.startsWith('✓') ? 'saved-note' : 'error-text')}>{signMsg}</p>}
         </section>
 
-        {/* Orarul e ascuns momentan (nu e final). Se reactivează când e gata. */}
+        <section className="portal-card">
+          <h2>🗓️ Orar</h2>
+          {data.activities.length === 0 ? <p className="muted">Orarul se publică în curând.</p> : (
+            CAMP_DAYS.map((day) => {
+              const list = acts(day.date)
+              if (list.length === 0) return null
+              return (
+                <div key={day.date} className="portal-day">
+                  <h3>{day.label}</h3>
+                  <ul className="portal-orar">
+                    {list.map((a, i) => (
+                      <li key={i}>
+                        <span className="po-time">{a.start_time ? a.start_time.slice(0, 5) : ''}</span>
+                        <span className="po-title">{a.title}{a.location ? ` · ${a.location}` : ''}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )
+            })
+          )}
+        </section>
 
         <footer className="portal-foot muted small">Camp BBSO 2026 · Asociația Creștină Cristia</footer>
       </div>
