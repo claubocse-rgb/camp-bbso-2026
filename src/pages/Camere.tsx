@@ -7,7 +7,7 @@ export default function Camere() {
   const [rooms, setRooms] = useState<Room[]>([])
   const [people, setPeople] = useState<Participant[]>([])
   const [loading, setLoading] = useState(true)
-  const [openBuilding, setOpenBuilding] = useState<string | null>(null)
+  const [openBuildings, setOpenBuildings] = useState<string[]>([])
   const [q, setQ] = useState('')
   const [showMap, setShowMap] = useState(true)
   const [hasMap, setHasMap] = useState(true)
@@ -87,10 +87,10 @@ export default function Camere() {
             const bRooms = rooms.filter((r) => r.building === b)
             const cap = bRooms.reduce((s, r) => s + r.capacity, 0)
             const occ = bRooms.reduce((s, r) => s + occupantsOf(r.id).length + (r.blocked || 0), 0)
-            const isOpen = openBuilding === b
+            const isOpen = openBuildings.includes(b)
             return (
               <div key={b} className="building">
-                <button className="building-head" onClick={() => setOpenBuilding(isOpen ? null : b)}>
+                <button className="building-head" onClick={() => setOpenBuildings((prev) => prev.includes(b) ? prev.filter((x) => x !== b) : [...prev, b])}>
                   <span className="building-name">{b}</span>
                   <span className="building-meta">{occ}/{cap} <span className={'chev' + (isOpen ? ' open' : '')}>▾</span></span>
                 </button>
